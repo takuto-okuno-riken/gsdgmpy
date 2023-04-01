@@ -1,6 +1,8 @@
+
+
 MIT License
 
-Copyright (c) 2023 takuto-okuno-riken
+Copyright (c) 2022-present T.Okuno, RIKEN CBS
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

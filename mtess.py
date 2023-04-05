@@ -110,6 +110,18 @@ if __name__ == '__main__':
             plt.plot(CX[i].transpose(), linewidth=0.3)
             plt.title('Input time-series : ' + CXnames[i])
             plt.xlabel('Time frames')
+            plt.ylabel('Signal value')
+            plt.show(block=False)
+
+    # show raster of input signals
+    if opt.showinras:
+        for i in range(len(CX)):
+            fig, ax = plt.subplots(figsize=(6, 5))
+            img = ax.matshow(CX[i], aspect="auto")
+            fig.colorbar(img, ax=ax)
+            plt.title('Raster plot of input time-series : ' + CXnames[i])
+            plt.xlabel('Time frames')
+            plt.ylabel('Node number')
             plt.show(block=False)
 
     plt.pause(1)

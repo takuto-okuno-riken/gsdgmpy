@@ -17,6 +17,7 @@ class ParseMtessOptions:
         self.parser.add_argument('--transform', type=int, default=0, help='input signal transform  0:raw, 1:sigmoid (default:0)')
         self.parser.add_argument('--transopt', type=float, default=float('NaN'), help='signal transform option (for type 1:centroid value)')
         self.parser.add_argument('--showinsig',  action='store_true', help='show input time-series data of <filename>.csv')
+        self.parser.add_argument('--showinras',  action='store_true', help='show raster plot of input time-series data of <filename>.csv')
         self.parser.add_argument('--showmat',  action='store_true', help='show result MTESS matrix')
         self.parser.add_argument('--showprop',  action='store_true', help='show result polar chart of 1 vs. others MTESS statistical properties')
         self.parser.add_argument('--shownode',  action='store_true', help='show result line plot of 1 vs. others node MTESS')

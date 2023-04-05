@@ -211,6 +211,7 @@ def plot_bar3d(mts, outname):
     z = np.zeros_like(x)
     dx = np.repeat(a=0.8, repeats=len(x))
     dy = np.repeat(a=0.8, repeats=len(y))
+    mts[np.isnan(mts)] = 0
     dz = mts.reshape((mts.shape[0]*mts.shape[1]))
 
     cm = plt.get_cmap('jet')  # color map
@@ -247,6 +248,20 @@ def plot_all_mat(mts, mtsp, outname):
         plt.ylabel('Cell number')
         plt.show(block=False)
         plt.pause(1)
+
+
+# pm      Node MTESS plot (data x node num)
+def plot_node(nm, outname, dnames=[]):
+    x = np.arange(nm.shape[1]) + 1
+    plt.figure()
+    plt.plot(x, nm.transpose(), marker='o', fillstyle='none', linestyle=':')
+    plt.title('Node MTESS - ' + outname)
+    plt.ylim(0, 5)
+    plt.xlabel('node number')
+    plt.ylabel('MTESS')
+    plt.legend(dnames, loc='lower right')
+    plt.show(block=False)
+    plt.pause(1)
 
 
 # pm      MTESS statistical properties matrix (cell number x 7)

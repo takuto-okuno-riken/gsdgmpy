@@ -20,8 +20,7 @@ class TestMTESS(object):
     def test(self):
         data_file = os.path.join(self.work_path, self.f_name)
         fdata = sio.loadmat(data_file)
-        cx = fdata["CX"]
-        cx = np.reshape(cx, (cx.shape[1],))  # to array
+        cx = fdata["CX"].flatten()  # to array
         node_num = cx[0].shape[0]
         sig_len = cx[0].shape[1]
 
@@ -49,6 +48,7 @@ class TestMTESS(object):
         cx2.append(surrogate.phase_randomized_ft(cx[0])[:, :, 0])  # this one shows unstable result
         ret = measures.mtess.calc(cx=cx2, mtrange=[0, 1], n_dft=100, cc_lags=8, pcc_lags=8)
         measures.mtess.plot_radar(ret[1][0, 0:7, :], self.f_name, dnames=dnames)
+        measures.mtess.plot_node(ret[2][0, 0:7, :], self.f_name, dnames=dnames)
         ''
         # synthetic lines
         dnames = ['original', 'flat@0.5', 'flat@0.9', 'random', 'sin']

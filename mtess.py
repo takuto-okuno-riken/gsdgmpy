@@ -10,24 +10,24 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from utils.parse_mtess_options import ParseMtessOptions
+from utils.parse_mtess_options import ParseOptions
 from utils.convert_sigmd import SigmoidConverter
 import measures
 import models
 
+
 # -------------------------------------------------------------------------
 # matrix calculation
-
 def save_mat_file(opt, mts, mtsp, nmts, nmtsp, CXnames, savename):
     out_path = opt.outpath + os.sep
     if opt.format == 1:  # mat all
         f_name = out_path + savename + '_mtess.mat'
-        print('saving matrix : ' + f_name)
+        print('output mat file : ' + f_name)
         sio.savemat(f_name, {'MTS': mts, 'MTSp': mtsp, 'nMTS': nmts, 'nMTSp': nmtsp})
     else:
         # output result MTESS matrix csv file
         f_name = out_path + savename + '_mtess'
-        print('saving matrix : ' + f_name)
+        print('output csv files : ' + f_name)
         np.savetxt(f_name + '.csv', mts, delimiter=',')
 
         # output result MTESS statistical property matrix csv file
@@ -38,7 +38,6 @@ def save_mat_file(opt, mts, mtsp, nmts, nmtsp, CXnames, savename):
         # output result node MTESS matrix csv file
         for k in range(nmts.shape[2]):
             np.savetxt(f_name+'_node'+str(k+1)+'.csv', nmts[:, :, k], delimiter=',')
-
 
 
 def get_group_range(cx):
@@ -52,16 +51,17 @@ def get_group_range(cx):
         's': np.nanstd(a)}
     return r
 
+
 # -------------------------------------------------------------------------
 # main
-
-
 if __name__ == '__main__':
-    options = ParseMtessOptions()
+    options = ParseOptions()
     opt = options.parse()
 
     if type(opt.outpath) is list:
         opt.outpath = opt.outpath[0]  # replaced by string
+    if type(opt.range) is list:
+        opt.range = opt.range[0]  # replaced by string
 
     # read time-series and control files
     savename = ''
@@ -127,15 +127,14 @@ if __name__ == '__main__':
     plt.pause(1)
 
     # -------------------------------------------------------------------------
-
     # set range
     gr = get_group_range(CX)
 
     mtrange = np.nan
     if opt.range == 'auto':
         mtrange = [gr['m'] - gr['s'] * 3, gr['m'] + gr['s'] * 3]
-    elif ':' in opt.range[0]:
-        sp = opt.range[0].split(':')
+    elif ':' in opt.range:
+        sp = opt.range.split(':')
         if sp[0] == 'sigma':  # <num> sigma of the whole group
             n = float(sp[1])
             mtrange = [gr['m'] - gr['s'] * n, gr['m'] + gr['s'] * n]
@@ -160,6 +159,21 @@ if __name__ == '__main__':
     if opt.showmat:
         measures.mtess.plot_bar3d(mts, savename)
         measures.mtess.plot_all_mat(mts, mtsp, savename)
+
+    # show 1 vs. others signals
+    if opt.showsig:
+        node_num = CX[0].shape[0]
+        for i in range(1, len(CX)):
+            fig = plt.figure()
+            for j in range(node_num):
+                ax1 = fig.add_subplot(node_num, 1, j+1)
+                ax1.plot(CX[0][j, :], linewidth=0.3)
+                ax1.plot(CX[i][j, :], linewidth=0.3)
+                ax1.set_ylim(mtrange[0], mtrange[1])
+            plt.show(block=False)
+            fig.suptitle('Node signals : '+CXnames[0]+' vs. '+CXnames[i])
+            plt.legend([CXnames[0], CXnames[i]], loc='lower right', ncol=2)
+            plt.pause(1)
 
     # show 1 vs. others MTESS statistical properties
     if opt.showprop:

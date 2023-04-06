@@ -41,7 +41,7 @@ def calc(x, net, ex_signal=[], node_control=[], ex_control=[], dist='gaussian', 
         control[:, input_num * p:input_num * (p + 1)] = np.concatenate([node_control, ex_control], 1)
 
     # find y range
-    if np.isnan(y_range):
+    if type(y_range) == float and np.isnan(y_range):
         t = np.max(x)
         d = np.min(x)
         r = t - d

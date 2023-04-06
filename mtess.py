@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 from utils.parse_mtess_options import ParseOptions
 from utils.convert_sigmd import SigmoidConverter
 import measures
-import models
 
 
 # -------------------------------------------------------------------------
@@ -80,16 +79,27 @@ if __name__ == '__main__':
             CXnames.append(name)
         elif '.mat' in opt.in_files[i]:
             dic = sio.loadmat(opt.in_files[i])
-            cx = dic.get('CX').flatten()
-            names = dic.get('names').flatten()
-            if cx is not None and len(cx[:]) > 0:
-                for j in range(len(cx[:])):
-                    CX.append(cx[j])
+            if dic.get('CX') is not None:
+                cx = dic.get('CX').flatten()
+                if dic.get('multiple') is not None:
+                    mlt = float(dic.get('multiple'))
+                    for j in range(len(cx)):
+                        x = cx[j] / mlt
+                        CX.append(x)
+                else:
+                    for j in range(len(cx)):
+                        CX.append(cx[j])
+            if dic.get('names') is not None:
+                names = dic.get('names').flatten()
+                for j in range(len(names)):
                     s = str(names[j])
                     s = s.replace('[', '')  # remove some useless chars
                     s = s.replace(']', '')  # remove some useless chars
                     s = s.replace("'", "")  # remove some useless chars
                     CXnames.append(s)
+            else:
+                for j in range(len(CX)):
+                    CXnames.append(name+str(j+1))
         if len(savename) == 0:
             savename = name
 

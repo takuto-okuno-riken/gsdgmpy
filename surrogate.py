@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 from utils.parse_surrogate_options import ParseOptions
 from utils.convert_sigmd import SigmoidConverter
-import measures
 import models
 import surrogate
 
@@ -50,7 +49,7 @@ if __name__ == '__main__':
     options = ParseOptions()
     opt = options.parse()
 
-    if ~opt.multi and ~opt.uni:
+    if not opt.multi and not opt.uni:
         opt.multi = True
 
     if type(opt.outpath) is list:

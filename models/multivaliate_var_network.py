@@ -26,6 +26,42 @@ class MultivariateVARNetwork(object):
         self.lr_objs = []
         self.residuals = []
 
+    def init_with_matnet(self, dic):
+        rvec = []
+        bvec = []
+        if type(dic) is dict:
+            self.node_num = int(dic['nodeNum'])
+            self.sig_len = int(dic['sigLen'])
+            self.ex_num = int(dic['exNum'])
+            self.lags = int(dic['lags'])
+            self.cx_m = dic['cxM']
+            self.cx_cov = dic['cxCov']
+            bx = dic['bvec'].flatten()
+            cx = dic['rvec'].flatten()
+            for j in range(len(cx)):
+                bvec.append(bx[j])
+                rvec.append(cx[j])
+        else:  # h5py
+            self.node_num = int(dic['nodeNum'][0, 0])
+            self.sig_len = int(dic['sigLen'][0, 0])
+            self.ex_num = int(dic['exNum'][0, 0])
+            self.lags = int(dic['lags'][0, 0])
+            self.cx_m = dic['cxM'][::].flatten()
+            self.cx_cov = dic['cxCov'][::]
+            brefs = dic['bvec'][::].flatten()
+            rrefs = dic['rvec'][::].flatten()
+            for i in range(len(rrefs)):
+                bvec.append(dic[brefs[i]][::].flatten())
+                rvec.append(dic[rrefs[i]][::].flatten())
+        self.node_max = self.node_num + self.ex_num
+        for i in range(self.node_num):
+            lr = LinearRegression(fit_intercept=True)
+            b = bvec[i].flatten()
+            lr.coef_ = b[0:len(b)-1]
+            lr.intercept_ = b[len(b)-1]
+            self.lr_objs.append(lr)
+            self.residuals.append(rvec[i])
+
     def init(self, x, ex_signal=[], node_control=[], ex_control=[], lags=3):
         self.node_num = x.shape[0]
         self.sig_len = x.shape[1]
@@ -61,6 +97,10 @@ class MultivariateVARNetwork(object):
             self.lr_objs.append(lr)
             self.residuals.append(r)
 
+    def init_with_cell(self, cx, cex_signal=[], node_control=[], ex_control=[], lags=3):
+        self.node_num = cx[0].shape[0]
+        self.sig_len = cx[0].shape[1]
+        self.lags = lags
 
     def load(self, path_name):
         list_file = path_name + os.sep + 'list.dat'

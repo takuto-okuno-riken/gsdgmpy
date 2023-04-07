@@ -19,7 +19,7 @@ def calc(x, surr_num=1):
     node_num = x.shape[0]
     sig_len = x.shape[1]
 
-    y = np.zeros((node_num, sig_len, surr_num))
+    y = np.zeros((node_num, sig_len, surr_num), dtype=x.dtype)
     for k in range(surr_num):
         for i in range(node_num):
             xi = x[i, :]

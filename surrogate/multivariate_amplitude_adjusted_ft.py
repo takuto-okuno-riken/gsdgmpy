@@ -21,13 +21,13 @@ def calc(x, surr_num=1):
     ii = np.argsort(x, axis=1)
     jj = np.argsort(ii, axis=1)
     r = np.sort(np.random.randn(node_num, sig_len), axis=1)
-    g = np.zeros((node_num, sig_len))
+    g = np.zeros((node_num, sig_len), dtype=x.dtype)
     for i in range(node_num):
         ri = r[i, :]
         g[i, :] = ri[jj[i, :]]
 
     h = surrogate.multivariate_phase_randomized_ft(g, surr_num)
-    y = np.zeros((node_num, sig_len, surr_num))
+    y = np.zeros((node_num, sig_len, surr_num), dtype=x.dtype)
     for k in range(surr_num):
         kk = np.argsort(h[:, :, k], axis=1)
         ll = np.argsort(kk, axis=1)

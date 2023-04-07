@@ -68,10 +68,10 @@ if __name__ == '__main__':
         name = os.path.splitext(os.path.basename(opt.in_files[i]))[0]
         if '.csv' in opt.in_files[i]:
             csv_input = pd.read_csv(opt.in_files[i], header=None)
-            x = csv_input.values
+            x = np.float32(csv_input.values)
         elif '.mat' in opt.in_files[i]:
             dic = sio.loadmat(opt.in_files[i])
-            x = dic.get('X')
+            x = np.float32(dic.get('X'))
 
         if len(x) == 0 or x is None:
             print('file does not contain data. ignore : ' + opt.in_files[i])

@@ -32,11 +32,11 @@ def calc(x, net, ex_signal=[], node_control=[], ex_control=[], dist='gaussian', 
     lags = net.lags
 
     # set control matrix
-    control = np.ones((node_num, lags * input_num))
+    control = np.ones((node_num, lags * input_num), dtype='bool')
     if len(node_control) == 0:
-        node_control = np.ones((node_num, node_num))
+        node_control = np.ones((node_num, node_num), dtype='bool')
     if len(ex_control) == 0:
-        ex_control = np.ones((node_num, ex_num))
+        ex_control = np.ones((node_num, ex_num), dtype='bool')
     for p in range(lags):
         control[:, input_num * p:input_num * (p + 1)] = np.concatenate([node_control, ex_control], 1)
 
@@ -52,12 +52,12 @@ def calc(x, net, ex_signal=[], node_control=[], ex_control=[], dist='gaussian', 
     for i in range(1, node_num):
         if rvlen > len(net.residuals[i]):
             rvlen = len(net.residuals[i])
-    err = np.empty((node_num, rvlen))
+    err = np.empty((node_num, rvlen), dtype=x.dtype)
     err[:] = np.nan
     for i in range(node_num):
         err[i, :] = net.residuals[i][0:rvlen]
     # set coefficient matrix
-    c = np.zeros((node_num, input_num*lags+1))
+    c = np.zeros((node_num, input_num*lags+1), dtype=x.dtype)
     for i in range(node_num):
         idx = np.where(control[i, :] == 1)
         c[i, idx[0]] = net.lr_objs[i].coef_
@@ -69,8 +69,8 @@ def calc(x, net, ex_signal=[], node_control=[], ex_control=[], dist='gaussian', 
         noise = np.random.multivariate_normal(mean=m, cov=ec, size=rvlen).transpose()
     else:
         noise = err
-    s2 = np.ones((input_num*lags+1, 1))
-    y = np.zeros((node_num, sig_len, surr_num))
+    s2 = np.ones((input_num*lags+1, 1), dtype=x.dtype)
+    y = np.zeros((node_num, sig_len, surr_num), dtype=x.dtype)
     for k in range(surr_num):
         print('var surrogate sample : '+str(k+1))
         s = x.copy()  # need to care original memory

@@ -19,7 +19,7 @@ def calc(x, surr_num=1):
 
     m = np.mean(x, axis=1)
     ec = np.cov(x)
-    y = np.zeros((node_num, sig_len, surr_num))
+    y = np.zeros((node_num, sig_len, surr_num), dtype=x.dtype)
     for k in range(surr_num):
         si = np.random.multivariate_normal(mean=m, cov=ec, size=sig_len)
         y[:, :, k] = np.transpose(si)

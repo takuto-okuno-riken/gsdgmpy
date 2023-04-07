@@ -46,10 +46,32 @@ def save_result_files(opt, y, outname):
         sio.savemat(f_name, {'CX': cx, 'names': names})
 
 
+def save_model_file(opt, net, gr, outname):
+    f_name = opt.outpath + os.sep + outname + '.mat'
+    print('output group surrogate model file : ' + f_name)
+    # convert to dictionary
+    dic = dict()
+    dic['nodeNum'] = net.node_num
+    dic['sigLen'] = net.sig_len
+    dic['exNum'] = net.ex_num
+    dic['lags'] = net.lags
+    dic['cxM'] = net.cx_m
+    dic['cxCov'] = net.cx_cov
+    bvec = np.empty(net.node_num, dtype=object)
+    rvec = np.empty(net.node_num, dtype=object)
+    for k in range(net.node_num):
+        b = np.concatenate([net.lr_objs[k].coef_.flatten(), [net.lr_objs[k].intercept_]])
+        bvec[k] = b
+        rvec[k] = net.residuals[k]  # list to nested array (cell)
+    dic['bvec'] = bvec
+    dic['rvec'] = rvec
+    sio.savemat(f_name, {'net': dic, 'gRange': gr})
+
+
 def url2cache_string(url):
     u = url.split('?')
-    u = u[0].replace('http://','')
-    u = u.replace('https://','')
+    u = u[0].replace('http://', '')
+    u = u.replace('https://', '')
     u = u.split('/')
     b = u[0].replace('.', '_')
     for j in range(1, len(u)):
@@ -70,8 +92,12 @@ def get_group_range(cx):
 
 
 def get_group_range_dic(dic):
-    if type(dic) is dict:
-        r = dic
+    if type(dic) is np.ndarray:
+        r = {
+            'min': dic['min'][0, 0][0, 0],
+            'max': dic['max'][0, 0][0, 0],
+            'm': dic['m'][0, 0][0, 0],
+            's': dic['s'][0, 0][0, 0]}
     else:  # h5py
         r = {
             'min': dic['min'][0, 0],
@@ -95,8 +121,7 @@ if __name__ == '__main__':
 
     # read time-series or model file
     CX = []
-    names = []
-    gr = []
+    CXnames = []
     mat_net = None
     savename = ''
     for i in range(len(opt.in_files)):
@@ -132,22 +157,35 @@ if __name__ == '__main__':
             if '.mat' in infile:
                 try:
                     dic = sio.loadmat(infile)
-                except NotImplementedError:
+                except NotImplementedError:  # -v3.7
                     dic = h5py.File(infile, 'r')
 
                 if dic.get('CX') is not None:
                     # training mode
-                    cx = dic.get('CX')
-                    for j in range(len(cx)):
-                        CX.append(cx[j])
-                    if dic.get('names') is not None:
-                        # training mode
-                        tn = dic.get('names')
-                        for j in range(len(tn)):
-                            names.append(tn[j])
+                    cx = dic.get('CX').flatten()
+                    if dic.get('multiple') is not None:
+                        mlt = np.float32(dic.get('multiple'))  # smaller memory
+                        for j in range(len(cx)):
+                            x = cx[j] / mlt
+                            CX.append(x)
                     else:
                         for j in range(len(cx)):
-                            names.append(name+str(j))
+                            CX.append(np.float32(cx[j]))
+                    if dic.get('names') is not None:
+                        names = dic.get('names').flatten()
+                        for j in range(len(names)):
+                            s = str(names[j])
+                            s = s.replace('[', '')  # remove some useless chars
+                            s = s.replace(']', '')  # remove some useless chars
+                            s = s.replace("'", "")  # remove some useless chars
+                            CXnames.append(s)
+                    else:
+                        for j in range(len(CX)):
+                            CXnames.append(name + '-' + str(j + 1))
+
+                elif dic.get('X') is not None:
+                    CX.append(np.float32(dic['X']))
+                    CXnames.append(name)
 
                 elif dic.get('net') is not None:
                     # surrogate data mode
@@ -160,8 +198,8 @@ if __name__ == '__main__':
             elif '.csv' in infile:
                 # training mode
                 csv_input = pd.read_csv(infile, header=None)
-                CX.append(csv_input.values)
-                names.append(name)
+                CX.append(np.float32(csv_input.values))
+                CXnames.append(name)
 
         if len(savename) == 0:
             savename = name
@@ -179,7 +217,7 @@ if __name__ == '__main__':
         if opt.showinsig:
             plt.figure()
             plt.plot(x.transpose(), linewidth=0.3)
-            plt.title('Input time-series : ' + name)
+            plt.title('Input time-series : ' + CXnames[i])
             plt.xlabel('Time frames')
             plt.ylabel('Signal value')
             plt.show(block=False)
@@ -189,7 +227,7 @@ if __name__ == '__main__':
             fig, ax = plt.subplots(figsize=(6, 5))
             img = ax.matshow(x, aspect="auto")
             fig.colorbar(img, ax=ax)
-            plt.title('Raster plot of input time-series : ' + names[i])
+            plt.title('Raster plot of input time-series : ' + CXnames[i])
             plt.xlabel('Time frames')
             plt.ylabel('Node number')
             plt.show(block=False)
@@ -204,8 +242,10 @@ if __name__ == '__main__':
 
         # generate model data
         if opt.var:
+            ntype = 'var'
             net = models.MultivariateVARNetwork()
             net.init_with_cell(CX, lags=opt.lag)
+            save_model_file(opt, net, gr, savename+'_gsm_'+ntype)
 
     # ------------------------------------------------------------------------------
     # surrogate data mode
@@ -247,7 +287,7 @@ if __name__ == '__main__':
 
         if ntype == 'var':
             y = surrogate.multivariate_var(x, net, surr_num=opt.surrnum, dist=opt.noise, y_range=yrange)
-            save_result_files(opt, y, savename + '_gsm_var')
+            save_result_files(opt, y, savename + '_gsd_' + ntype)
 
         # show surrogate signals
         if opt.showsig:

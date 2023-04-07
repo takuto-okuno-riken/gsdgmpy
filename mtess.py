@@ -75,31 +75,36 @@ if __name__ == '__main__':
         name = os.path.splitext(os.path.basename(opt.in_files[i]))[0]
         if '.csv' in opt.in_files[i]:
             csv_input = pd.read_csv(opt.in_files[i], header=None)
-            CX.append(csv_input.values)
+            CX.append(np.float32(csv_input.values))
             CXnames.append(name)
         elif '.mat' in opt.in_files[i]:
             dic = sio.loadmat(opt.in_files[i])
             if dic.get('CX') is not None:
                 cx = dic.get('CX').flatten()
                 if dic.get('multiple') is not None:
-                    mlt = float(dic.get('multiple'))
+                    mlt = np.float32(dic.get('multiple'))  # smaller memory
                     for j in range(len(cx)):
                         x = cx[j] / mlt
                         CX.append(x)
                 else:
                     for j in range(len(cx)):
-                        CX.append(cx[j])
-            if dic.get('names') is not None:
-                names = dic.get('names').flatten()
-                for j in range(len(names)):
-                    s = str(names[j])
-                    s = s.replace('[', '')  # remove some useless chars
-                    s = s.replace(']', '')  # remove some useless chars
-                    s = s.replace("'", "")  # remove some useless chars
-                    CXnames.append(s)
-            else:
+                        CX.append(np.float32(cx[j]))
+                if dic.get('names') is not None:
+                    names = dic.get('names').flatten()
+                    for j in range(len(names)):
+                        s = str(names[j])
+                        s = s.replace('[', '')  # remove some useless chars
+                        s = s.replace(']', '')  # remove some useless chars
+                        s = s.replace("'", "")  # remove some useless chars
+                        CXnames.append(s)
+
+            elif dic.get('X') is not None:
+                CX.append(np.float32(dic['X']))
+                CXnames.append(name)
+
+        else:
                 for j in range(len(CX)):
-                    CXnames.append(name+str(j+1))
+                    CXnames.append(name+'-'+str(j+1))
         if len(savename) == 0:
             savename = name
 

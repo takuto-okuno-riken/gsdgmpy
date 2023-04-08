@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 
 def calc(x):
     node_num = x.shape[0]
-    pcm = np.zeros((node_num, node_num))
+    pcm = np.zeros((node_num, node_num), dtype=x.dtype)
 
     lr = LinearRegression(fit_intercept=True)
     for i in range(node_num):

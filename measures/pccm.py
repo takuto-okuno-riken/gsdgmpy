@@ -8,6 +8,7 @@
 
 from __future__ import print_function, division
 
+import timeit
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
@@ -17,7 +18,9 @@ from sklearn.linear_model import LinearRegression
 def calc(x, max_lag=2):
     node_num = x.shape[0]
     sig_len = x.shape[1]
-    pccm = np.zeros((node_num, node_num, max_lag*2+1))
+    pccm = np.zeros((node_num, node_num, max_lag*2+1), dtype=x.dtype)
+    tic = timeit.default_timer()
+    print('start to calc pccm')
 
     # check all same value or not
     ulen = np.zeros(node_num)
@@ -52,13 +55,14 @@ def calc(x, max_lag=2):
             cc /= np.linalg.norm(r1, ord=2) * np.linalg.norm(r2, ord=2)
             pccm[i, j, :] = cc[(sig_len-1-max_lag):(sig_len+max_lag)]
 
-    e = np.ones((node_num, node_num))
+    e = np.ones((node_num, node_num), dtype=x.dtype)
     mask = np.tril(e, k=-1)
     for p in range(-max_lag, max_lag):
         b = pccm[:, :, max_lag - p]
         b = b.transpose() * mask
         pccm[:, :, max_lag + p] += b
-
+    toc = timeit.default_timer()
+    print('done t='+str(toc-tic))
     return pccm
 
 

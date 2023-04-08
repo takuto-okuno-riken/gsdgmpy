@@ -22,7 +22,7 @@ def calc(x, max_lag=5):
     xn = np.linalg.norm(x2, ord=2, axis=1)
     ccm = np.zeros((node_num, node_num, max_lag*2+1), dtype=x.dtype)
     tic = timeit.default_timer()
-    print('start to calc ccm')
+    print('start to calc ccm ... ', end='')
 
     # check all same value or not
     ulen = np.zeros(node_num)
@@ -48,7 +48,7 @@ def calc(x, max_lag=5):
         b = b.transpose() * mask
         ccm[:, :, max_lag + p] += b
     toc = timeit.default_timer()
-    print('done t='+str(toc-tic))
+    print('done t='+format(toc-tic, '3f'))
     return ccm
 
 

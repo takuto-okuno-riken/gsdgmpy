@@ -13,21 +13,25 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
 
 
-def calc(x, max_lag=2):
+def calc(x, max_lag=2, model='ridge'):
     node_num = x.shape[0]
     sig_len = x.shape[1]
     pccm = np.zeros((node_num, node_num, max_lag*2+1), dtype=x.dtype)
     tic = timeit.default_timer()
-    print('start to calc pccm')
+    print('start to calc pccm ... ', end='')
 
     # check all same value or not
     ulen = np.zeros(node_num)
     for i in range(node_num):
         ulen[i] = np.unique(x[i, :]).size
 
-    lr = LinearRegression(fit_intercept=True)
+    if model == 'ridge':
+        lr = Ridge(fit_intercept=True, alpha=1e-9, solver='cholesky')  # this is much faster
+    else:
+        lr = LinearRegression(fit_intercept=True)
     for i in range(node_num):
         xi = x[i, :].transpose()
         for j in range(i, node_num):
@@ -62,7 +66,7 @@ def calc(x, max_lag=2):
         b = b.transpose() * mask
         pccm[:, :, max_lag + p] += b
     toc = timeit.default_timer()
-    print('done t='+str(toc-tic))
+    print('done t='+format(toc-tic, '3f'))
     return pccm
 
 

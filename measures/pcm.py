@@ -10,13 +10,17 @@ from __future__ import print_function, division
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
 
 
-def calc(x):
+def calc(x, model='ridge'):
     node_num = x.shape[0]
     pcm = np.zeros((node_num, node_num), dtype=x.dtype)
 
-    lr = LinearRegression(fit_intercept=True)
+    if model == 'ridge':
+        lr = Ridge(fit_intercept=True, alpha=1e-9, solver='cholesky')  # this is much faster
+    else:
+        lr = LinearRegression(fit_intercept=True)
     for i in range(node_num):
         xi = x[i, :].transpose()
         for j in range(i, node_num):

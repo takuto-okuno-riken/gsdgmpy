@@ -73,7 +73,10 @@ class TestSurrogateRS(object):
 #        pcsim = measures.cos_sim(xpc, ypc)
 
         # calc PCCM
+        xpcc2 = measures.pccm_.calc(x=x, max_lag=2)
         xpcc = measures.pccm.calc(x=x, max_lag=2)
+        print('xpcc2 diff='+str(np.sum(np.abs(xpcc2-xpcc))))
+
         ypcc = measures.pccm.calc(x=y, max_lag=2)
         xc2 = xpcc[:, :, 2] + nanx  # PC OK with matlab ver.
         yc2 = ypcc[:, :, 2] + nanx
@@ -83,7 +86,8 @@ class TestSurrogateRS(object):
         nx4 = np.repeat(nanx[:, :, np.newaxis], 4, axis=2)
         pccsim = measures.cos_sim(xpcc + nx4, ypcc + nx4)
 
-        print(prefix+' : m='+str(1-np.mean(msim))+', s='+str(1-np.mean(ssim))+', ac='+str(asim)+', fc='+str(fcsim)+', pc='+str(pcsim)+', ccm='+str(ccsim)+', pccm='+str(pccsim))
+        print(prefix+' : m='+format(1-np.mean(msim),'3f')+', s='+format(1-np.mean(ssim),'3f')+', ac='+format(asim,'3f')+
+              ', fc='+format(fcsim,'3f')+', pc='+format(pcsim,'3f')+', ccm='+format(ccsim,'3f')+', pccm='+format(pccsim,'3f'))
 
     def test(self):
         data_file = os.path.join(self.work_path, self.f_name)

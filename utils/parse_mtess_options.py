@@ -22,6 +22,9 @@ class ParseOptions:
         self.parser.add_argument('--showsig',  action='store_true', help='show 1 vs. others node signals')
         self.parser.add_argument('--showprop',  action='store_true', help='show result polar chart of 1 vs. others MTESS statistical properties')
         self.parser.add_argument('--shownode',  action='store_true', help='show result line plot of 1 vs. others node MTESS')
+        self.parser.add_argument('--showdend',  type=str, nargs=1, default='', help='show dendrogram of <algo> hierarchical clustering based on MTESS matrix.')
+        self.parser.add_argument('--cache',  action='store_true', help='use cache file for MTESS calculation')
+        self.parser.add_argument('--cachepath', nargs=1, default='results/cache', help='cache files <path> (default:"results/cache")')
 
     def parse(self):
         self.initialize()

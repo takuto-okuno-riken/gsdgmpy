@@ -10,6 +10,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, dendrogram
 from utils.parse_mtess_options import ParseOptions
 from utils.convert_sigmd import SigmoidConverter
 import measures
@@ -61,6 +63,10 @@ if __name__ == '__main__':
         opt.outpath = opt.outpath[0]  # replaced by string
     if type(opt.range) is list:
         opt.range = opt.range[0]  # replaced by string
+    if type(opt.showdend) is list:
+        opt.showdend = opt.showdend[0]  # replaced by string
+    if type(opt.cachepath) is list:
+        opt.cachepath = opt.cachepath[0]  # replaced by string
 
     # read time-series and control files
     savename = ''
@@ -97,14 +103,14 @@ if __name__ == '__main__':
                         s = s.replace(']', '')  # remove some useless chars
                         s = s.replace("'", "")  # remove some useless chars
                         CXnames.append(s)
+                else:
+                    for j in range(len(CX)):
+                        CXnames.append(name + '-' + str(j + 1))
 
             elif dic.get('X') is not None:
                 CX.append(np.float32(dic['X']))
                 CXnames.append(name)
 
-        else:
-                for j in range(len(CX)):
-                    CXnames.append(name+'-'+str(j+1))
         if len(savename) == 0:
             savename = name
 
@@ -164,8 +170,12 @@ if __name__ == '__main__':
         sys.exit()
 
     # calc MTESS
+    cnames = []
+    if opt.cache:
+        cnames = CXnames
     mts, mtsp, nmts, nmtsp, means, stds, acs, cms, pcms, ccms, pccms = \
-        measures.mtess.calc(cx=CX, mtrange=mtrange, n_dft=opt.ndft, cc_lags=opt.cclag, pcc_lags=opt.pcclag)
+        measures.mtess.calc(cx=CX, mtrange=mtrange, n_dft=opt.ndft, cc_lags=opt.cclag, pcc_lags=opt.pcclag,
+                            cxnames=cnames, cache_path=opt.cachepath)
 
     # output result matrix files
     save_mat_file(opt, mts, mtsp, nmts, nmtsp, CXnames, savename)
@@ -197,6 +207,21 @@ if __name__ == '__main__':
     # show 1 vs. others node MTESS
     if opt.shownode:
         measures.mtess.plot_node(nmts[0, 1:7, :], savename, CXnames[1:7])
+
+    # show dendrogram
+    if opt.showdend:
+        mts[np.isnan(mts)] = 0  # mts might have nan
+        mts = mts + mts.transpose()
+        e = np.eye(mts.shape[0])
+        mask = np.where(e == 1, 0, 1)
+        x = (5 - mts) * mask
+        condensed_dist_matrix = squareform(x)
+        linkage_result = linkage(condensed_dist_matrix, method=opt.showdend, metric='euclidean')
+        plt.figure()
+        dendrogram(linkage_result, labels=np.arange(mts.shape[0]))
+        plt.title('Hierarchical clustering based on MTESS')
+        plt.ylabel('MTESS distance')
+        plt.xlabel('Cell number')
 
     plt.pause(1)
     input("Press Enter to exit...")

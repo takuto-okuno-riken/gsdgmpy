@@ -47,7 +47,7 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
     trange = mtrange[1] - mtrange[0]  # should be positive
 
     if len(cxnames) > 0:
-        if os.path.isdir(cache_path):
+        if not os.path.isdir(cache_path):
             os.mkdir(cache_path)
 
     # calc statistical properties
@@ -60,11 +60,12 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
     pccms = np.zeros((clen, node_num, node_num, 2*pcc_lags+1))
     for nn in range(clen):
         x = cx[nn]
+        cachef = ''
         if len(cxnames) > 0:
             cachef = cache_path + os.sep + 'mtess-' + cxnames[nn] + '-' + str(x.shape[0])+'x'+str(x.shape[1])\
                      + 'd'+str(n_dft)+'c'+str(cc_lags)+'p'+str(pcc_lags)+'.mat'
-        if len(cxnames) > 0 and os.path.isdir(cache_path):
-            print('load cache of '+cxnames[nn])
+        if len(cachef) > 0 and os.path.isfile(cachef):
+            print('load cache of '+cachef)
             dic = sio.loadmat(cachef)
             xm = dic.get('xm')
             xsd = dic.get('xsd')
@@ -77,9 +78,9 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
             xamp, p1 = measures.dft.calc(x=x, n_dft=n_dft)
             xcc = measures.ccm.calc(x=x, max_lag=cc_lags)
             xpcc = measures.pccm.calc(x=x, max_lag=pcc_lags)
-        if len(cxnames) > 0:
-            print('save cache of ' + cxnames[nn])
-            sio.savemat(cachef, {'xm': xm, 'xsd': xsd, 'xamp': xamp, 'xcc': xcc, 'xpcc': xpcc})  # compatible with matlab version
+            if len(cachef) > 0:
+                print('save cache of ' + cachef)
+                sio.savemat(cachef, {'xm': xm, 'xsd': xsd, 'xamp': xamp, 'xcc': xcc, 'xpcc': xpcc})  # compatible with matlab version
         means[nn, :] = xm
         stds[nn, :] = xsd
         acs[nn, :, :] = xamp

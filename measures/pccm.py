@@ -18,12 +18,13 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import ProcessPoolExecutor
 
 
-def in_node_calc(i, node_num, sig_len, max_lag, ulen, x, xi, model):
+def in_node_calc(i, node_num, sig_len, max_lag, ulen, x, model):
     if model == 'ridge':
         lr = Ridge(fit_intercept=True, alpha=1e-9, solver='cholesky')  # this is much faster
     else:
         lr = LinearRegression(fit_intercept=True)
 
+    xi = x[i, :].transpose()
     pccmj = np.zeros((node_num, max_lag*2+1))
     for j in range(i, node_num):
         if ulen[i] == 1 and ulen[j] == 1:
@@ -67,13 +68,11 @@ def calc(x, max_lag=2, model='ridge', concurrent_type='thread'):
     if concurrent_type == 'thread':
         with ThreadPoolExecutor() as executor:
             for i in range(node_num):
-                xi = x[i, :].transpose()
-                futures.append(executor.submit(in_node_calc, i, node_num, sig_len, max_lag, ulen, x, xi, model))
+                futures.append(executor.submit(in_node_calc, i, node_num, sig_len, max_lag, ulen, x, model))
     else:
         with ProcessPoolExecutor() as executor:
             for i in range(node_num):
-                xi = x[i, :].transpose()
-                futures.append(executor.submit(in_node_calc, i, node_num, sig_len, max_lag, ulen, x, xi, model))
+                futures.append(executor.submit(in_node_calc, i, node_num, sig_len, max_lag, ulen, x, model))
     for i in range(len(futures)):
         a = futures[i].result()
         pccm[a[0], :, :] = a[1]

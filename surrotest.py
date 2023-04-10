@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
     # -------------------------------------------------------------------------
     node_num = CX[0].shape[0]
-    if opt.linear:
+    if opt.l:
         # output result matrix files
         params = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
         h, p, t, rank = measures.surro_test.calc(CX[0], CX[1:len(CX)], func=measures.stat_linear, params=params, side=opt.side)
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         if opt.showrank:
             measures.surro_test.plot(p, t, rank, 'Linear')
 
-    if opt.gaussian:
+    if opt.g:
         # output result matrix files
         h, p, t, rank = measures.surro_test.calc(CX[0], CX[1:len(CX)], func=measures.stat_gaussian, params=[], side=opt.side)
         print('significantly not gaussian distribution ('+str(np.sum(h))+' / '+str(node_num)+')')
@@ -132,7 +132,7 @@ if __name__ == '__main__':
         if opt.showrank:
             measures.surro_test.plot(p, t, rank, 'gaussian distribution')
 
-    if opt.iid:
+    if opt.i:
         # output result matrix files
         h, p, t, rank = measures.surro_test.calc(CX[0], CX[1:len(CX)], func=measures.stat_iid, params=[], side=opt.side)
         print('significantly not I.I.D. ('+str(np.sum(h))+' / '+str(node_num)+')')

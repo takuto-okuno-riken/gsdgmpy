@@ -7,7 +7,7 @@ Group Surrogate Data Generating Model (GSDGM) and Multivariate Time-series Ensem
 
 ## Introduction
 The GSDGM and MTESS Toolbox is a powerful tool for surrogate data generation and multivariate time-series similarity analysis.
-One GSDGM algorithm has been implemented to generate group surrogate data: 1) Vector Auto-Regression (VAR) surrogate [(R. Liégeois, et al., 2017)](https://www.sciencedirect.com/science/article/abs/pii/S1053811917307516) for python version ([MATLAB version](https://github.com/takuto-okuno-riken/mtess) implements three GSDGM algorithms).
+One GSDGM algorithm has been implemented to generate group surrogate data: 1) Vector Auto-Regression (VAR) surrogate [(R. Liégeois, et al., 2017)](https://www.sciencedirect.com/science/article/abs/pii/S1053811917307516) for Python version ([MATLAB version](https://github.com/takuto-okuno-riken/mtess) implements three GSDGM algorithms).
 The VAR surrogate tries to fit the common features of the whole data. Thus, the GSDGM approach has the very unique ability to generate group centroid multivariate time-series.
 This allows us to achieve the most biologically plausible standardized human brain dynamics model based on a large human rs-fMRI dataset from [the Human Connectome Project](https://www.humanconnectome.org/).
 
@@ -47,11 +47,11 @@ The GSDGM can generate the group centroid time-series and MTESS can quantify nor
 (base) gsdgmpy-main>conda create -n gsdgm python=3.9
 ...
 (base) gsdgmpy-main>conda activate gsdgm
-(vardnn) gsdgmpy-main>
+(gsdgm) gsdgmpy-main>
 ~~~
 4. Install several packages.
 ~~~
-(vardnn) gsdgmpy-main>pip install -r requirements.txt
+(gsdgm) gsdgmpy-main>pip install -r requirements.txt
 ...
 ~~~
 5. Run the following demos.
@@ -62,7 +62,7 @@ The GSDGM can generate the group centroid time-series and MTESS can quantify nor
 The first demo shows the calculation of MTESS among time-series data and figure output.<br>
 (Copy and paste this command line. Demo data is included in GSDGM and MTESS Toolbox.)
 ~~~
->> mtess --showinsig --showmat --showsig --showprop --shownode data/cx-8x500-demo-surrogate.mat 
+(gsdgm) gsdgmpy-main>python mtess.py --showinsig --showmat --showsig --showprop --shownode data/cx-8x500-demo-surrogate.mat
 ...
 output mat file : results/cx-8x500-demo-surrogate_mtess.mat
 ~~~
@@ -190,53 +190,41 @@ significantly not I.I.D (8 / 8)
 output mat file : results/demo-original-8x500_iid_test.mat
 ~~~
 
-##
-<b>Demo 6</b><br>
-This demo shows the extraction of rs-fMRI time-series data (132 ROIs). Then MTESS is calculated amongst the group of rs-fMRI ROI time-series data.<br>
-(Caution: Data for this demo is not included in the toolbox.)
-~~~
->> nii2roisig -a D:/work/conn/rois/atlas.nii --showsig --transform 1 *_rfMRI_REST1_LR.nii.gz
-checking atlas space size ...
-...
-processing : 101309_rfMRI_REST1_LR
-output mat file : results/100307_rfMRI_REST1_LR_all.mat
->> mtess --showmat --showforce --showdend ward --showprop results/100307_rfMRI_REST1_LR_all.mat
-...
-output mat file : results/100307_rfMRI_REST1_LR_all_mtess.mat
-~~~
-<div align="center">
-<img src="data/nii2roisig1.jpg">
-</div>
-As can be seen in this result, rs-fMRI ROI time-series data are extracted from a pre-processed nifti file (MNI space) with CONN atlas data.
-Then, the multivariate time-series similarity among subjects are calculated and analysed by the "mtess" command.
-
 
 ## Command Line Tools Reference
 <b>mtess command</b><br>
 ~~~
->> mtess -h
-usage: mtess [options] file1.mat file2.mat ...
-  --range type        input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)
-  --ndft num          DFT sampling <number> (even number) (default: 100)
-  --pcc type          Partial Cross-Correlation algorithm 0:auto, 1:PCC, 2:SV-PCC, 3:PC-PCC (dafault:0)
-  --cclag num         time lag <num> for Cross Correlation (default:8)
-  --pcclag num        time lag <num> for Partial Cross Correlation (default:8)
-  --outpath path      output files <path> (default:"results")
-  --format type       save file format <type> 0:csv, 1:mat (default:1)
-  --transform type    input signal transform <type> 0:raw, 1:sigmoid (default:0)
-  --transopt num      signal transform option <num> (for type 1:centroid value)
-  --showinsig         show input time-series data of <filename>.csv
-  --showinras         show raster plot of input time-series data of <filename>.csv
-  --showmat           show result MTESS matrix
-  --showsig           show 1 vs. others node signals
-  --showprop          show result polar chart of 1 vs. others MTESS statistical properties
-  --shownode          show result line plot of 1 vs. others node MTESS
-  --showdend algo     show dendrogram of <algo> hierarchical clustering based on MTESS matrix. see MATLAB linkage method option.
-  --showforce         show force weight effect graph based on MTESS matrix
-  --cache             use cache file for MTESS calculation (low memory mode)
-  --cachepath path    cache files <path> (default:"results/cache")
-  -v, --version       show version number
-  -h, --help          show command line help
+(gsdgm) gsdgmpy-main>python mtess.py -h
+usage: mtess.py [-h] [--range RANGE] [--ndft NDFT] [--cclag CCLAG] [--pcclag PCCLAG] [--outpath OUTPATH]
+                [--format FORMAT] [--transform TRANSFORM] [--transopt TRANSOPT] [--showinsig] [--showinras]
+                [--showmat] [--showsig] [--showprop] [--shownode] [--showdend SHOWDEND] [--cache]
+                [--cachepath CACHEPATH]
+                filename [filename ...]
+
+positional arguments:
+  filename              filename of node status time-series (node x frames)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --range RANGE         input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)
+  --ndft NDFT           DFT sampling <number> (even number) (default: 100)
+  --cclag CCLAG         time lag <num> for Cross Correlation (default:8)
+  --pcclag PCCLAG       time lag <num> for Partial Cross Correlation (default:8)
+  --outpath OUTPATH     output files path (default:"results")
+  --format FORMAT       save file format <type> 0:csv, 1:mat (default:1)
+  --transform TRANSFORM
+                        input signal transform 0:raw, 1:sigmoid (default:0)
+  --transopt TRANSOPT   signal transform option (for type 1:centroid value)
+  --showinsig           show input time-series data of <filename>.csv
+  --showinras           show raster plot of input time-series data of <filename>.csv
+  --showmat             show result MTESS matrix
+  --showsig             show 1 vs. others node signals
+  --showprop            show result polar chart of 1 vs. others MTESS statistical properties
+  --shownode            show result line plot of 1 vs. others node MTESS
+  --showdend SHOWDEND   show dendrogram of <algo> hierarchical clustering based on MTESS matrix.
+  --cache               use cache file for MTESS calculation
+  --cachepath CACHEPATH
+                        cache files <path> (default:"results/cache")
 ~~~
 The input .mat file should include input cell data. The node count must be the same within the group, whereas time-series length does not have to be the same.
 | name | cell | description |
@@ -258,29 +246,32 @@ Similarities are generated for the following 7 statistical properties: mean, sta
 ##
 <b>gsdgm command</b><br>
 ~~~
->> gsdgm -h
-model training : gsdgm [options] file1.mat file2.mat ...
-surrogate data : gsdgm [options] file_gsm_<type>.mat
-  -v, --var           output Vector Auto-Regression (VAR) group surrogate model (<filename>_gsm_var.mat)
-  -p, --pcvar         output Principal Component VAR (PCVAR) group surrogate model (<filename>_gsm_pcvar.mat)
-  -d, --vardnn        output VAR Deep Neural Network (VARDNN) group surrogate model (<filename>_gsm_vardnn.mat)
-  --lag num           time lag <num> for VAR, PCVAR, VARDNN surrogate model (default:3)
-  --noise type        noise type for VAR, PCVAR, VARDNN surrogate model (default:"gaussian" or "residuals")
-  --outpath path      output files <path> (default:"results")
-  --transform type    input training signal transform <type> 0:raw, 1:sigmoid (default:0)
-  --transopt num      signal transform option <num> (for type 1:centroid value)
-  --format type       output surrogate data file format <type> 0:csv, 1:mat (default:1)
-  --surrnum num       output surrogate sample number <num> (default:1)
-  --siglen num        output time-series length <num> (default:same as input time-series)
-  --range type        output surrogate value range (default:"auto", sigma:<num>, full:<num>, <min>:<max> or "none")
-  --pcrate num        principal component variance rate <num> for PCVAR surrogate (default:0.99)
-  --epoch num         VARDNN surrogate training epoch number <num> (default:1000)
-  --showinsig         show input time-series data of <filename>.csv
-  --showinras         show raster plot of input time-series data of <filename>.csv
-  --showsig           show output surrogate time-series data
-  --showras           show raster plot of output surrogate time-series data
-  --version           show version number
-  -h, --help          show command line help
+(gsdgm) gsdgmpy-main>python gsdgm.py -h
+usage: gsdgm.py [-h] [--var] [--lag LAG] [--noise NOISE] [--outpath OUTPATH] [--transform TRANSFORM]
+                [--transopt TRANSOPT] [--format FORMAT] [--surrnum SURRNUM] [--siglen SIGLEN] [--range RANGE]
+                [--showinsig] [--showinras] [--showsig] [--showras]
+                filename [filename ...]
+
+positional arguments:
+  filename              filename of node status time-series (node x frames)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --var                 output Vector Auto-Regression (VAR) group surrogate model (<filename>_gsm_var.mat)
+  --lag LAG             time lag <num> for VAR (default:3)
+  --noise NOISE         noise type for VAR surrogate model (default:"gaussian" or "residuals")
+  --outpath OUTPATH     output files path (default:"results")
+  --transform TRANSFORM
+                        input signal transform 0:raw, 1:sigmoid (default:0)
+  --transopt TRANSOPT   signal transform option (for type 1:centroid value)
+  --format FORMAT       save file format <type> 0:csv, 1:mat(each), 2:mat(all) (default:2)
+  --surrnum SURRNUM     output surrogate sample number <num> (default:1)
+  --siglen SIGLEN       output time-series length <num> (default:same as input time-series)
+  --range RANGE         output surrogate value range (default:"auto", sigma:<num>, full:<num>, <min>:<max> or "none")
+  --showinsig           show input time-series data of <filename>.csv
+  --showinras           show raster plot of input time-series data of <filename>.csv
+  --showsig             show output surrogate time-series data
+  --showras             show raster plot of output surrogate time-series data
 ~~~
 The input .mat file should include input cell data described as follows. The node count must be the same within the group, whereas the time-series length does not have to be the same.
 | name | cell | description |
@@ -306,33 +297,34 @@ The output (group surrogate data) .mat file includes the following cell data:
 ##
 <b>surrogate command</b><br>
 ~~~
->> surrogate -h
-usage: surrogate [options] filename.csv ...
-  -g, --rg            output Random Gaussian (RG) surrogate (<filename>_rg_<variate>_<num>.csv)
-  -s, --rs            output Random Shuffling (RS) surrogate (<filename>_rs_<variate>_<num>.csv)
-  -f, --ft            output Fourier Transform (FT) surrogate (<filename>_ft_<variate>_<num>.csv)
-  -a, --aaft          output Amplitude Adjusted FT (AAFT) surrogate (<filename>_aaft_<variate>_<num>.csv)
-  -i, --iaaft         output Iterated AAFT (IAAFT) surrogate (<filename>_iaaft_<variate>_<num>.csv)
-  -v, --var           output Vector Auto-Regression (VAR) surrogate (<filename>_var_<variate>_<num>.csv)
-  -p, --pcvar         output Principal Component VAR (PCVAR) surrogate (<filename>_pcvar_<variate>_<num>.csv)
-  -d, --vardnn        output VAR Deep Neural Network (VARDNN) surrogate (<filename>_vardnn_<variate>_<num>.csv)
-  -l, --lazy          output Lazy Learning (LL) surrogate (<filename>_lazy_<variate>_<num>.csv)
-  --multi             output multivariate surrogate (default:on)
-  --uni               output univariate surrogate (default:off)
-  --noise type        noise type for VAR, PCVAR, VARDNN, LL surrogate (default:"gaussian")
-  --surrnum num       output surrogate sample number <num> (default:1)
-  --outpath path      output files <path> (default:"results")
-  --format type       save file format <type> 0:csv, 1:mat(each), 2:mat(all) (default:2)
-  --transform type    input signal transform <type> 0:raw, 1:sigmoid (default:0)
-  --transopt num      signal transform option <num> (for type 1:centroid value)
-  --lag num           time lag <num> for VAR, PCVAR, VARDNN, LL (default:3)
-  --epoch num         VARDNN training epoch number <num> (default:1000)
-  --l2 num            VARDNN training L2Regularization <num> (default:0.05)
-  --nn num            <num>-nearest neighbor for Lazy Learning (default:2)
-  --showsig           show input time-series data of <filename>.csv
-  --nocache           do not use cache file for VARDNN training
-  --version           show version number
-  -h, --help          show command line help
+(gsdgm) gsdgmpy-main>python surrogate.py -h
+usage: surrogate.py [-h] [--rg] [--rs] [--ft] [--aaft] [--iaaft] [--var] [--multi] [--uni] [--noise NOISE]
+                    [--surrnum SURRNUM] [--outpath OUTPATH] [--format FORMAT] [--transform TRANSFORM]
+                    [--transopt TRANSOPT] [--lag LAG] [--showsig]
+                    filename [filename ...]
+
+positional arguments:
+  filename              filename of node status time-series (node x frames)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --rg                  output Random Gaussian (RG) surrogate (<filename>_rg_<variate>_<num>.csv)
+  --rs                  output Random Shuffling (RS) surrogate (<filename>_rs_<variate>_<num>.csv)
+  --ft                  output Fourier Transform (FT) surrogate (<filename>_ft_<variate>_<num>.csv)
+  --aaft                output Amplitude Adjusted FT (AAFT) surrogate (<filename>_aaft_<variate>_<num>.csv)
+  --iaaft               output Iterated AAFT (IAAFT) surrogate (<filename>_iaaft_<variate>_<num>.csv)
+  --var                 output Vector Auto-Regression (VAR) surrogate (<filename>_var_<variate>_<num>.csv)
+  --multi               output multivariate surrogate (default:on)
+  --uni                 output univariate surrogate (default:off)
+  --noise NOISE         noise type for VAR surrogate (default:"gaussian")
+  --surrnum SURRNUM     output surrogate sample number <num> (default:1)
+  --outpath OUTPATH     output files path (default:"results")
+  --format FORMAT       save file format <type> 0:csv, 1:mat(each), 2:mat(all) (default:2)
+  --transform TRANSFORM
+                        input signal transform 0:raw, 1:sigmoid (default:0)
+  --transopt TRANSOPT   signal transform option (for type 1:centroid value)
+  --lag LAG             time lag <num> for VAR (default:3)
+  --showsig             show input time-series data of <filename>.csv
 ~~~
 The input .csv or .mat file should include time-series matrix data in the following format:
 | name | matrix | description |
@@ -349,18 +341,24 @@ The output (surrogate data) .mat file includes the following cell data:
 ##
 <b>surrotest command</b><br>
 ~~~
->> surrotest -h
-usage: surrotest [options] <original>.csv surrogate.mat ...
-  -g, --gaussian      output Gaussian distribution test (<original>_gauss_test.csv)
-  -l, --linear        output Linearity test  (<original>_linear_test.csv)
-  -i, --iid           output I.I.D test (<original>_iid_test.csv)
-  --side num          bottom-side(1), both-side(2), top-side(3) (default:2)
-  --outpath path      output files <path> (default:"results")
-  --format type       save file format <type> 0:csv, 1:mat (default:1)
-  --showsig           show input time-series data of <original>.csv
-  --showrank          show rank result of <original>.csv
-  -v, --version       show version number
-  -h, --help          show command line help
+(gsdgm) gsdgmpy-main>python surrotest.py -h
+usage: surrotest.py [-h] [--g] [--l] [--i] [--side SIDE] [--outpath OUTPATH] [--format FORMAT] [--showsig]
+                    [--showrank]
+                    filename [filename ...]
+
+positional arguments:
+  filename           filename of node status time-series (node x frames)
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --g                output Gaussian distribution test (<original>_gauss_test.csv)
+  --l                output Linearity test (<original>_linear_test.csv)
+  --i                output I.I.D test (<original>_iid_test.csv)
+  --side SIDE        bottom-side(1), both-side(2), top-side(3) (default:2)
+  --outpath OUTPATH  output files path (default:"results")
+  --format FORMAT    save file format <type> 0:csv, 1:mat (default:1)
+  --showsig          show input time-series data of <filename>.csv
+  --showrank         show raster plot of input time-series data of <filename>.csv
 ~~~
 The input .mat file should include input cell data described as follows. The node count must be the same within the group.
 | name | cell | description |
@@ -374,31 +372,6 @@ The output .mat file includes the following matrix data:
 |:---|:---|:---|
 |P |&lt;nodes&gt; x 1 | P-value result|
 |Rank |&lt;nodes&gt; x 1 | Rank value result |
-
-##
-<b>nii2roisig command</b><br>
-~~~
->> nii2roisig -h
-usage: nii2roisig [options] -a atlas.nii file1.nii ...
-  -a, --atlas file    ROI atlas nifti <file>
-  --outpath path      output files <path> (default:"results")
-  --format type       save file format <type> 0:csv, 1:mat(each), 2:mat(all) (default:2)
-  --transform type    output signal transform <type> 0:raw, 1:sigmoid (default:0)
-  --transopt num      signal transform option <num> (for type 1:centroid value)
-  --showsig           show output time-series data of <original>.csv
-  --showras           show raster plot of output time-series data of <original>.csv
-  --nocache           do not use cache file for conversion
-  -v, --version       show version number
-  -h, --help          show command line help
-~~~
-Inputs are a ROI atlas .nii (.nii.gz) and rs-fMRI .nii (.nii.gz) files. Both files should have data in the same physical space (i.e. MNI space).
-
-The output .mat file includes the following cell data:
-
-| name | cell | description |
-|:---|:---|:---|
-|CX |{&lt;nodes&gt; x &lt;length&gt;} x &lt;cell number&gt; |group of multivariate time-series|
-|names |{'data name string'} x &lt;cell number&gt; |names of each time-series data|
 
 
 ## Citing GSDGM and MTESS Toolbox

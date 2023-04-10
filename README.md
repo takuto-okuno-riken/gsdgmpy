@@ -91,6 +91,7 @@ output mat file : results\demo-original-8x500_var_multi_all.mat
 output mat file : results\demo-original-8x500_rs_multi_all.mat
 output mat file : results\demo-original-8x500_ft_multi_all.mat
 output mat file : results\demo-original-8x500_aaft_multi_all.mat
+
 (gsdgm) gsdgmpy-main>python mtess.py --showmat --showprop --showsig data/demo-original-8x500.csv results/demo-original-8x500_rs_multi_all.mat results/demo-original-8x500_var_multi_all.mat results/demo-original-8x500_ft_multi_all.mat results/demo-original-8x500_aaft_multi_all.mat
 ...
 output mat file : results\demo-original-8x500_mtess.mat
@@ -114,6 +115,7 @@ save cache file : data/cache/fmridata2_s323_xrea_com-hcp-s500m-var1.mat
 var surrogate sample : 1
 var surrogate sample : 2
 output mat file : results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
+
 (gsdgm) gsdgmpy-main>python mtess.py --showmat --showdend ward --showprop --cache data/demo-fmri-132x1190s.mat results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
 ...
 output mat file : results\demo-fmri-132x1190s_mtess.mat
@@ -132,37 +134,43 @@ Other GSDGM .mat files (male, female, algorithms) can be found in [Zenodo](https
 This demo shows creation of a data generating model (GSDGM) from sample rs-fMRI time-series data (132 ROIs). Then MTESS is calculated amongst the group of original time-series data and group surrogate data.<br>
 (Caution: MTESS calculation will take a time.)
 ~~~
->> gsdgm -v --lag 1 --surrnum 2 --showsig --showras data/demo-fmri-132x1190s.mat
-output group surrogate model file : results/demo-fmri-132x1190s_gsm_var.mat
-surrogate sample : 1
-surrogate sample : 2
-output mat file : results/demo-fmri-132x1190s_gsd_var.mat
->> mtess --showmat --showprop --showdend ward --cache --showforce data/demo-fmri-132x1190s.mat results/demo-fmri-132x1190s_gsd_var.mat
+(gsdgm) gsdgmpy-main>python gsdgm.py --var --lag 1 --surrnum 2 --showsig --showras data/demo-fmri-132x1190s.mat
+output group surrogate model file : results\demo-fmri-132x1190s_gsm_var.mat
+var surrogate sample : 1
+var surrogate sample : 2
+output mat file : results\demo-fmri-132x1190s_gsd_var_all.mat
+
+(gsdgm) gsdgmpy-main>python mtess.py --showmat --showprop --showdend ward --cache data/demo-fmri-132x1190s.mat results/demo-fmri-132x1190s_gsd_var_all.mat
 ...
-save cache of demo-fmri-132x1190s-gsd-var-1
-save cache of demo-fmri-132x1190s-gsd-var-2
-output mat file : results/demo-fmri-132x1190s_mtess.mat
+start to calc ccm ... done t=1.137007
+start to calc pccm ... done t=21.706379
+save cache of results/cache\mtess-demo-fmri-132x1190s_gsd_var_2-132x1190d100c8p8.mat
+...
+output mat file : results\demo-fmri-132x1190s_mtess.mat
 ~~~
 
 <div align="center">
 <img src="data/gsdgm1.jpg">
 </div>
-As can be seen in this result, VAR group surrogate data (cell number 7,8) shows a higher MTESS than the original data (cell number 1-6).
-From hierarchical clustering and force weight effect graph visualization it can be seen that the group surrogate data is the representative centroid of the group of original time-series data.
+As can be seen in this result, VAR group surrogate data (cell number 6,7) shows a higher MTESS than the original data (cell number 0-5).
+From hierarchical clustering it can be seen that the group surrogate data is the representative centroid of the group of original time-series data.
 
 
 ##
 <b>Demo 5</b><br>
 
 Linearity test:<br>
-1. Use FT or AAFT surrogate ("surrogate -f" or "-a" command) to generate 399 surrogate data samples from the original time-series file.
-2. Use the "-l" option of the "surrotest" command for carrying out a linearity test. The original time-series and surrogate data files must be specified for this command.
+1. Use FT or AAFT surrogate ("surrogate --ft" or "--aaft" command) to generate 399 surrogate data samples from the original time-series file.
+2. Use the "--l" option of the "surrotest" command for carrying out a linearity test. The original time-series and surrogate data files must be specified for this command.
 ~~~
->> surrogate -f --surrnum 399 data/demo-original-8x500.csv
-output mat file : results/demo-original-8x500_ft_multi_all.mat
->> surrotest -l --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_ft_multi_all.mat
+(gsdgm) gsdgmpy-main>python surrogate.py --ft --surrnum 399 data/demo-original-8x500.csv
+loading signals : data/demo-original-8x500.csv
+output mat file : results\demo-original-8x500_ft_multi_all.mat
+
+(gsdgm) gsdgmpy-main>python surrotest.py --l --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_ft_multi_all.mat
+...
 significantly not linear (1 / 8)
-output mat file : results/demo-original-8x500_linear_test.mat
+output mat file : results\demo-original-8x500_linear_test.mat
 ~~~
 The plot design for the linearity test was inspired by [J.Theilear and D.Prichard (1996)](https://www.sciencedirect.com/science/article/abs/pii/0167278996000504).
 <div align="center">
@@ -170,25 +178,31 @@ The plot design for the linearity test was inspired by [J.Theilear and D.Prichar
 </div>
 
 Gaussian distribution test:<br>
-1. Use RG surrogate ("surrogate -g" command) to generate 399 of surrogate data samples from the original time-series file.
-2. Use the "-g" option of the "surrotest" command for Gaussian distribution test. The original time-series and surrogate data files must be specified for this command.
+1. Use RG surrogate ("surrogate --rg" command) to generate 399 of surrogate data samples from the original time-series file.
+2. Use the "--g" option of the "surrotest" command for Gaussian distribution test. The original time-series and surrogate data files must be specified for this command.
 ~~~
->> surrogate -g --surrnum 399 data/demo-original-8x500.csv
-output mat file : results/demo-original-8x500_rg_multi_all.mat
->> surrotest -g --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_rg_multi_all.mat
-significantly not gaussian (5 / 8)
-output mat file : results/demo-original-8x500_gaussian_test.mat
+(gsdgm) gsdgmpy-main>python surrogate.py --rg --surrnum 399 data/demo-original-8x500.csv
+loading signals : data/demo-original-8x500.csv
+output mat file : results\demo-original-8x500_rg_multi_all.mat
+
+(gsdgm) gsdgmpy-main>python surrotest.py --g --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_rg_multi_all.mat
+...
+significantly not gaussian distribution (5 / 8)
+output mat file : results\demo-original-8x500_gaussian_test.mat
 ~~~
 
 Independent and Identically Distributed (I.I.D) test:<br>
-1. Use RS surrogate ("surrogate -s" command) to generate 399 of surrogate data samples from the original time-series file.
-2. Use the "-i" option of the "surrotest" command for I.I.D test. The original time-series and surrogate data files must be specified for this command.
+1. Use RS surrogate ("surrogate --rs" command) to generate 399 of surrogate data samples from the original time-series file.
+2. Use the "--i" option of the "surrotest" command for I.I.D test. The original time-series and surrogate data files must be specified for this command.
 ~~~
->> surrogate -s --surrnum 399 data/demo-original-8x500.csv
-output mat file : results/demo-original-8x500_rs_multi_all.mat
->> surrotest -i --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_rs_multi_all.mat
-significantly not I.I.D (8 / 8)
-output mat file : results/demo-original-8x500_iid_test.mat
+(gsdgm) gsdgmpy-main>python surrogate.py --rs --surrnum 399 data/demo-original-8x500.csv
+loading signals : data/demo-original-8x500.csv
+output mat file : results\demo-original-8x500_rs_multi_all.mat
+
+(gsdgm) gsdgmpy-main>python surrotest.py --i --showsig --showrank data/demo-original-8x500.csv results/demo-original-8x500_rs_multi_all.mat
+...
+significantly not I.I.D. (8 / 8)
+output mat file : results\demo-original-8x500_iid_test.mat
 ~~~
 
 

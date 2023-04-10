@@ -1,13 +1,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-success.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6381103.svg)](https://doi.org/10.5281/zenodo.6381103)
 
-# GSDGM and MTESS Toolbox
-Group Surrogate Data Generating Model (GSDGM) and Multivariate Time-series Ensemble Similarity Score (MTESS) Toolbox
+# GSDGM and MTESS Toolbox for Python
+Group Surrogate Data Generating Model (GSDGM) and Multivariate Time-series Ensemble Similarity Score (MTESS) Toolbox for Python
+(MATLAB version is [here](https://github.com/takuto-okuno-riken/mtess))
 
 ## Introduction
 The GSDGM and MTESS Toolbox is a powerful tool for surrogate data generation and multivariate time-series similarity analysis.
-Three GSDGM algorithms have been implemented to generate group surrogate data: 1) Vector Auto-Regression (VAR) surrogate [(R. Liégeois, et al., 2017)](https://www.sciencedirect.com/science/article/abs/pii/S1053811917307516), 2) Principal Component VAR (PCVAR) surrogate, and 3) Vector Auto-Regressive Deep Neural Network (VARDNN) surrogate [(T.Okuno and A.Woodward, 2021)](https://www.frontiersin.org/articles/10.3389/fnins.2021.764796/full).
-The VAR, PCVAR and VARDNN surrogates all try to fit the common features of the whole data. Thus, the GSDGM approach has the very unique ability to generate group centroid multivariate time-series.
+One GSDGM algorithm has been implemented to generate group surrogate data: 1) Vector Auto-Regression (VAR) surrogate [(R. Liégeois, et al., 2017)](https://www.sciencedirect.com/science/article/abs/pii/S1053811917307516) for python version ([MATLAB version](https://github.com/takuto-okuno-riken/mtess) implements three GSDGM algorithms).
+The VAR surrogate tries to fit the common features of the whole data. Thus, the GSDGM approach has the very unique ability to generate group centroid multivariate time-series.
 This allows us to achieve the most biologically plausible standardized human brain dynamics model based on a large human rs-fMRI dataset from [the Human Connectome Project](https://www.humanconnectome.org/).
 
 <div align="center">
@@ -16,7 +17,7 @@ This allows us to achieve the most biologically plausible standardized human bra
 
 MTESS can quantify the similarity between two multivariate time-series. It is composed of the normalized distance or cos-similarity of seven basic statistical properties. These are the mean, standard deviation, auto-correlation, correlation matrix, partial correlation matrix, cross-correlation matrix, and partial cross-correlation matrix. By considering each of these statistical properties, it is possible to identify which of them differ between two multivariate time-series using a “MTESS radar chart.”  The total difference between two multivariate time-series is expressed by a single value [0, 5] (0: not similar to 5: similar)(MTESS), and the  difference in each univariate time-series, which we consider as nodes of a network, is expressed as a Node MTESS value.
 
-The combination of GSDGM and MTESS allows us to perform individuality analysis of a group of multivariate time-series.
+The combination of GSDGM and MTESS allows us to perform fingerprint analysis of a group of multivariate time-series.
 The GSDGM can generate the group centroid time-series and MTESS can quantify normality and abnormality based on a comparison between the group centroid and each individual multivariate time-series.
 
 <b>Command line tools</b>
@@ -24,27 +25,37 @@ The GSDGM can generate the group centroid time-series and MTESS can quantify nor
 | name | description |
 |:---|:---|
 | mtess | Calculate and plot MTESS for a group of multivariate time-series data. |
-| gsdgm | Generate a group surrogate model (VAR, PCVAR, VARDNN surrogate) and (multivariate time-series) group surrogate data.|
-| surrogate | Generate univariate and multivariate time-series surrogate data by Random Gaussian (RG), Random shuffling (RS), Fourier Transfor (FT), Amplitude Adjusted FT (AAFT)[(J.Theilear et al., 1992)](https://www.sciencedirect.com/science/article/abs/pii/016727899290102S), Iterated AAFT (IAAFT)[(T.Schreiber and A.Schmitz, 1996)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.77.635), VAR, PCVAR, VARDNN surrogate.|
+| gsdgm | Generate a group surrogate model (VAR surrogate) and (multivariate time-series) group surrogate data.|
+| surrogate | Generate univariate and multivariate time-series surrogate data by Random Gaussian (RG), Random shuffling (RS), Fourier Transfor (FT), Amplitude Adjusted FT (AAFT)[(J.Theilear et al., 1992)](https://www.sciencedirect.com/science/article/abs/pii/016727899290102S), Iterated AAFT (IAAFT)[(T.Schreiber and A.Schmitz, 1996)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.77.635), VAR surrogate.|
 | surrotest | Hypothesis testing based on the monte-carlo method (Linearity test, Gaussian distribution test, Independent and Identically Distributed (I.I.D) test)  [(J.Theilear and D.Prichard, 1996)](https://www.sciencedirect.com/science/article/abs/pii/0167278996000504).|
-| nii2roisig | Extract fMRI ROI time-series data from NIfTI files (.nii, .nii.gz) with the ROI atlas file (.nii, .nii.gz). |
 
 
-## Requirements: Software
-* MATLAB R2019b or later
-* Deep Learning Toolbox ver12.1 or later
-* Fuzzy Logic Toolbox ver2.6 or later
-* Parallel Computing Toolbox ver7.1 or later
-* [VARDNN Toolbox](https://github.com/takuto-okuno-riken/vardnn)
-
-Please download the [VARDNN Toolbox](https://github.com/takuto-okuno-riken/vardnn) and "Add Path" in the MATLAB before using GSDGM and MTESS Toolbox.
+## Requirements: software
+* Python 3.9.*
+* matplotlib 3.5.*
+* scikit_learn 1.1.*
+* h5py 3.8.*
+* pandas 1.4.*
 
 
 ## Installation
-1. Download this Toolbox and [VARDNN Toolbox](https://github.com/takuto-okuno-riken/vardnn) zip files.
-2. Extract zip files under your working directory <work_path>.
-3. Run the MATLAB software, and "Add Path" extracted directories (i.e. <work_path>/vardnn-master and <work_path>/mtess-master).
-4. Move to <work_path>/mtess-master directory and run the following demos.
+1. Download this [Toolbox](https://github.com/takuto-okuno-riken/gsdgmpy/archive/refs/heads/main.zip) zip files.
+2. Extract zip file under your working directory <work_path>/gsdgmpy-main.
+3. This is not required, but we recommend using the conda virtual environment.
+~~~
+(base) work_path>cd gsdgmpy-main
+(base) gsdgmpy-main>conda create -n gsdgm python=3.9
+...
+(base) gsdgmpy-main>conda activate gsdgm
+(vardnn) gsdgmpy-main>
+~~~
+4. Install several packages.
+~~~
+(vardnn) gsdgmpy-main>pip install -r requirements.txt
+...
+~~~
+5. Run the following demos.
+
 
 ## Command Line Tools Demos
 <b>Demo 1</b><br>

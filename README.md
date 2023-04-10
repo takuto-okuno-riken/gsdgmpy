@@ -64,7 +64,7 @@ The first demo shows the calculation of MTESS among time-series data and figure 
 ~~~
 (gsdgm) gsdgmpy-main>python mtess.py --showinsig --showmat --showsig --showprop --shownode data/cx-8x500-demo-surrogate.mat
 ...
-output mat file : results/cx-8x500-demo-surrogate_mtess.mat
+output mat file : results\cx-8x500-demo-surrogate_mtess.mat
 ~~~
 
 This demo calculates MTESS and generates the following figures:
@@ -84,15 +84,16 @@ Finally, the "mtess" command saves the calculation result in either .mat or .csv
 <b>Demo 2</b><br>
 The second demo shows the calculation of surrogate data, then the calculation of MTESS between original time-series data vs. surrogate data.
 ~~~
->> surrogate -s -f -a -v data/demo-original-8x500.csv
-surrogate sample : 1
-output mat file : results/demo-original-8x500_var_multi_all.mat
-output mat file : results/demo-original-8x500_rs_multi_all.mat
-output mat file : results/demo-original-8x500_ft_multi_all.mat
-output mat file : results/demo-original-8x500_aaft_multi_all.mat
->> mtess --showmat --showprop --showsig data/demo-original-8x500.csv results/demo-original-8x500_rs_multi_all.mat results/demo-original-8x500_var_multi_all.mat results/demo-original-8x500_ft_multi_all.mat results/demo-original-8x500_aaft_multi_all.mat
+(gsdgm) gsdgmpy-main>python surrogate.py --rs --ft --aaft --var data/demo-original-8x500.csv
+loading signals : data/demo-original-8x500.csv
+var surrogate sample : 1
+output mat file : results\demo-original-8x500_var_multi_all.mat
+output mat file : results\demo-original-8x500_rs_multi_all.mat
+output mat file : results\demo-original-8x500_ft_multi_all.mat
+output mat file : results\demo-original-8x500_aaft_multi_all.mat
+(gsdgm) gsdgmpy-main>python mtess.py --showmat --showprop --showsig data/demo-original-8x500.csv results/demo-original-8x500_rs_multi_all.mat results/demo-original-8x500_var_multi_all.mat results/demo-original-8x500_ft_multi_all.mat results/demo-original-8x500_aaft_multi_all.mat
 ...
-output mat file : results/demo-original-8x500_mtess.mat
+output mat file : results\demo-original-8x500_mtess.mat
 ~~~
 the "surrogate" command reads a single multivariate time-series (8x500) file and generates surrogate data (8x500) by (multivariate) RS surrogate, VAR surrogate, FT surrogate, and AAFT surrogate.
 Then, the "mtess" command reads the original time-series .csv and surrogate time-series data .mat files, and calculates multivariate time-series similarity.
@@ -107,21 +108,21 @@ As can be seen in this result, VAR, FT and AAFT surrogate data (cell number 3-5)
 The third demo shows the calculation of (VAR) group surrogate data based on [the Human Connectome Project](https://www.humanconnectome.org/) S500 male rs-fMRI data (132 ROIs). Then MTESS is calculated amongst some samples of rs-fMRI time-series data and group surrogate data.<br>
 (Caution: Downloading and MTESS calculation will take some time.)
 ~~~
->> gsdgm --surrnum 2 --showsig http://fmridata.s223.xrea.com/hcp-s500m-var1.mat
-downloading http://fmridata.s223.xrea.com/hcp-s500m-var1.mat ...
-save cache file : data/cache/fmridata_s223_xrea_com-hcp-s500m-var1.mat
-surrogate sample : 1
-surrogate sample : 2
-output mat file : results/fmridata_s223_xrea_com-hcp-s500m-var1_gsd_var.mat
->> mtess --showmat --showforce --showdend ward --showprop --cache data/demo-fmri-132x1190s.mat results/fmridata_s223_xrea_com-hcp-s500m-var1_gsd_var.mat
+(gsdgm) gsdgmpy-main>python gsdgm.py --surrnum 2 --showsig http://fmridata2.s323.xrea.com/hcp-s500m-var1.mat
+downloading http://fmridata2.s323.xrea.com/hcp-s500m-var1.mat
+save cache file : data/cache/fmridata2_s323_xrea_com-hcp-s500m-var1.mat
+var surrogate sample : 1
+var surrogate sample : 2
+output mat file : results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
+(gsdgm) gsdgmpy-main>python mtess.py --showmat --showdend ward --showprop --cache data/demo-fmri-132x1190s.mat results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
 ...
-output mat file : results/demo-fmri-132x1190s_mtess.mat
+output mat file : results\demo-fmri-132x1190s_mtess.mat
 ~~~
 
 <div align="center">
 <img src="data/demo3.jpg">
 </div>
-As can be seen in this result, the VAR group surrogate data (cell number 7,8) shows a higher MTESS than the sample rs-fMRI data (cell number 1-6).
+As can be seen in this result, the VAR group surrogate data (cell number 6, 7) shows a higher MTESS than the sample rs-fMRI data (cell number 0-5).
 This is because the downloaded data generating model (GSDGM) was created using a large set of HCP data (N=410) and can thus generate group representative (standard) human brain dynamics. This generated group surrogate data can be considered as the centroid of the group of original rs-fMRI time-series data.
 
 Other GSDGM .mat files (male, female, algorithms) can be found in [Zenodo](https://zenodo.org/record/6381103).

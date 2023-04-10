@@ -141,5 +141,5 @@ if __name__ == '__main__':
             measures.surro_test.plot(p, t, rank, 'I.I.D.')
 
     plt.pause(1)
-    if opt.showrank:
+    if opt.showsig or opt.showrank:
         input("Press Enter to exit...")

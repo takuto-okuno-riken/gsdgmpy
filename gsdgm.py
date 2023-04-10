@@ -311,4 +311,7 @@ if __name__ == '__main__':
                 plt.xlabel('Time frames')
                 plt.ylabel('Node number')
                 plt.show(block=False)
+
     plt.pause(1)
+    if opt.showinsig or opt.showinras or opt.showsig or opt.showras:
+        input("Press Enter to exit...")

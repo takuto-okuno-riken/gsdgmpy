@@ -224,4 +224,5 @@ if __name__ == '__main__':
         plt.xlabel('Cell number')
 
     plt.pause(1)
-    input("Press Enter to exit...")
+    if opt.showinsig or opt.showinras or opt.showmat or opt.showsig or opt.showprop or opt.shownode:
+        input("Press Enter to exit...")

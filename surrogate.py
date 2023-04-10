@@ -154,3 +154,5 @@ if __name__ == '__main__':
                 save_result_files(opt, y, savename + '_iaaft_uni')
 
     plt.pause(1)
+    if opt.showsig:
+        input("Press Enter to exit...")

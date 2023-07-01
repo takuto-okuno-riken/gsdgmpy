@@ -32,7 +32,7 @@ def save_mat_file(opt, mts, mtsp, nmts, nmtsp, CXnames, savename):
         np.savetxt(f_name + '.csv', mts, delimiter=',')
 
         # output result MTESS statistical property matrix csv file
-        props = ['M', 'SD', 'AC', 'CM', 'PCM', 'CCM', 'PCCM']
+        props = ['SD', 'AC', 'PAC', 'CM', 'PCM', 'CCM', 'PCCM', 'mKT']
         for k in range(len(props)):
             np.savetxt(f_name+'_'+props[k]+'.csv', mtsp[:, :, k], delimiter=',')
 
@@ -173,8 +173,8 @@ if __name__ == '__main__':
     cnames = []
     if opt.cache:
         cnames = CXnames
-    mts, mtsp, nmts, nmtsp, means, stds, acs, cms, pcms, ccms, pccms = \
-        measures.mtess.calc(cx=CX, mtrange=mtrange, n_dft=opt.ndft, cc_lags=opt.cclag, pcc_lags=opt.pcclag,
+    mts, mtsp, nmts, nmtsp, means, stds, acs, pacs, cms, pcms, ccms, pccms, mkts = \
+        measures.mtess.calc(cx=CX, mtrange=mtrange, ac_lags=opt.aclag, cc_lags=opt.cclag, pcc_lags=opt.pcclag,
                             cxnames=cnames, cache_path=opt.cachepath)
 
     # output result matrix files

@@ -3,12 +3,12 @@
 # Caluclate MTESS, MTESS statistical properties, Node MTESS and Node MTESS statistical properties
 # returns MTESS matrix (cell number x cell number)(MTS), MTESS statistical property matrix (cell number x cell number x 7)(MTSp),
 #   Node MTESS (cell number x cell number x node)(nMTS) and Node MTESS statistical properties (cell number x cell number x node x 7)(nMTSp).
-#   Data in the middle of calculation, such as mean (Means), standard deviation (Stds), DFT amplitude (Amps), correlation matrix (FCs),
-#   partial correlation matrix (PCs), cross-correlation matrix (CCs) and partial cross-correlation matrix (PCCs).
+#   Data in the middle of calculation, such as mean (Means), standard deviation (Stds), auto-correlation (AC), partial auto-correlation (PAC),
+#   correlation matrix (FCs), partial correlation matrix (PCs), cross-correlation matrix (CCs), partial cross-correlation matrix (PCCs) and multivariate kurtosis (mKT).
 # input:
 #  cx               cells of multivariate time series matrix {(node x time series)} x cell number (time series length can be different)
 #  mtrange          mtess range [min, max] of time series for normalized mean and std dev (default: min and max of input CX)
-#  n_dft            DFT sampling number (even number) (default: 100)
+#  ac_lags          time lags for Auto-Correlation function (default: 15)
 #  cc_lags          time lags for Cross-Correlation function (default: 4)
 #  pcc_lags         time lags for Partial Cross-Correlation function (default: 2)
 #  cxnames          CX signals names used for cache filename (default: {})
@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import measures
 
 
-def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache_path='results'+os.sep+'cache'):
+def calc(cx, mtrange=np.nan, ac_lags=15, cc_lags=4, pcc_lags=2, cxnames=[], cache_path='results'+os.sep+'cache'):
     clen = len(cx)
     node_num = cx[0].shape[0]
     # check data file. node num should be same.
@@ -53,75 +53,88 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
     # calc statistical properties
     means = np.zeros((clen, node_num))
     stds = np.zeros((clen, node_num))
-    acs = np.zeros((clen, node_num, int(n_dft/2)-1))
+    acs = np.zeros((clen, node_num, ac_lags+1))
+    pacs = np.zeros((clen, node_num, ac_lags+1))
     cms = np.zeros((clen, node_num, node_num))
     pcms = np.zeros((clen, node_num, node_num))
     ccms = np.zeros((clen, node_num, node_num, 2*cc_lags+1))
     pccms = np.zeros((clen, node_num, node_num, 2*pcc_lags+1))
+    mkts = np.zeros(clen)
     for nn in range(clen):
         x = cx[nn]
         cachef = ''
         if len(cxnames) > 0:
             cachef = cache_path + os.sep + 'mtess-' + cxnames[nn] + '-' + str(x.shape[0])+'x'+str(x.shape[1])\
-                     + 'd'+str(n_dft)+'c'+str(cc_lags)+'p'+str(pcc_lags)+'.mat'
+                     + 'a'+str(ac_lags)+'c'+str(cc_lags)+'p'+str(pcc_lags)+'.mat'
         if len(cachef) > 0 and os.path.isfile(cachef):
             print('load cache of '+cachef)
             dic = sio.loadmat(cachef)
             xm = dic.get('xm')
             xsd = dic.get('xsd')
-            xamp = dic.get('xamp')
+            xac = dic.get('xac')
+            xpac = dic.get('xpac')
             xcc = dic.get('xcc')
             xpcc = dic.get('xpcc')
+            xmkt = dic.get('xmkt')
         else:
             xm = np.mean(x, axis=1)
             xsd = np.std(x, axis=1)
-            xamp, p1 = measures.dft.calc(x=x, n_dft=n_dft)
+            xac = measures.ac.calc(x=x, max_lag=ac_lags)
+            xpac = measures.pac.calc(x=x, max_lag=ac_lags)
             xcc = measures.ccm.calc(x=x, max_lag=cc_lags)
             xpcc = measures.pccm.calc(x=x, max_lag=pcc_lags)
+            xmsw, xmkt = measures.mskewkurt.calc(x=x)
             if len(cachef) > 0:
                 print('save cache of ' + cachef)
-                sio.savemat(cachef, {'xm': xm, 'xsd': xsd, 'xamp': xamp, 'xcc': xcc, 'xpcc': xpcc})  # compatible with matlab version
+                sio.savemat(cachef, {'xm': xm, 'xsd': xsd, 'xac': xac, 'xpac': xpac, 'xcc': xcc, 'xpcc': xpcc, 'xmkt': xmkt})  # compatible with matlab version
         means[nn, :] = xm
         stds[nn, :] = xsd
-        acs[nn, :, :] = xamp
+        acs[nn, :, :] = xac
+        pacs[nn, :, :] = xpac
         cms[nn, :, :] = xcc[:, :, cc_lags]
         pcms[nn, :, :] = xpcc[:, :, pcc_lags]
         ccms[nn, :, :, :] = xcc
         pccms[nn, :, :, :] = xpcc
+        mkts[nn] = xmkt
 
     # calc MTESS
+    item_num = 8
     ne = np.empty((node_num, node_num))
     ne[:] = np.nan
     nanx = np.tril(ne, 0)
     nanxcc = np.repeat(nanx[:, :, np.newaxis], cc_lags*2, axis=2)
     nanxpcc = np.repeat(nanx[:, :, np.newaxis], pcc_lags*2, axis=2)
-    mtsp = np.empty((clen, clen, 7))
-    nmtsp = np.empty((clen, clen, node_num, 7))
+    mtsp = np.empty((clen, clen, item_num))
+    nmtsp = np.empty((clen, clen, node_num, item_num))
     mtsp[:] = np.nan
     nmtsp[:] = np.nan
     ccidx = np.r_[0:cc_lags, (cc_lags + 1):(2 * cc_lags + 1)]
     pccidx = np.r_[0:pcc_lags, (pcc_lags + 1):(2 * pcc_lags + 1)]
     for i in range(clen):
-        b = np.empty((clen, 7))
-        nb = np.empty((clen, node_num, 7))
+        b = np.empty((clen, item_num))
+        nb = np.empty((clen, node_num, item_num))
         b[:] = np.nan
         nb[:] = np.nan
         for j in range(i+1, clen):
-            c = np.empty(7)
-            nc = np.empty((node_num, 7))
+            c = np.empty(item_num)
+            nc = np.empty((node_num, item_num))
             c[:] = np.nan
             nc[:] = np.nan
-            # calc mean distance (normalized)
-            dm = means[i, :] - means[j, :]
-            nc[:, 0] = np.abs(dm) / (trange / 2)
-
             # calc std dev difference
             ds = stds[i, :] - stds[j, :]
-            nc[:, 1] = np.abs(ds) / (trange / 4)
+            d = 5 * (1 - np.abs(ds) / (trange / 4))
+            d[d < 0] = 0
+            c[0] = np.nanmean(d)
+            nc[:, 0] = d
 
-            # calc amplitude difference
-            a1 = acs[i, :, :]
-            a2 = acs[j, :, :]
+            # calc AC/PAC simirality
+            a1 = acs[i, :, 1:ac_lags]
+            a2 = acs[j, :, 1:ac_lags]
+            c[1] = 5 * measures.cos_sim(a1, a2)
+            for k in range(node_num):
+                nc[k, 1] = 5 * measures.cos_sim(a1[k, :], a2[k, :])
+            a1 = pacs[i, :, 1:ac_lags]
+            a2 = pacs[j, :, 1:ac_lags]
             c[2] = 5 * measures.cos_sim(a1, a2)
             for k in range(node_num):
                 nc[k, 2] = 5 * measures.cos_sim(a1[k, :], a2[k, :])
@@ -164,24 +177,18 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
                 r2 = np.r_[pccm2[k, :, :], pccm2[:, k, :]]
                 nc[k, 6] = 5 * measures.cos_sim(r1, r2)
 
+            # calc multivariate kurtosis difference
+            mkt = node_num * (node_num + 2) / 2    # 2 is empirically defined.
+            ds = 5 * (1 - abs(mkts[i] - mkts[j]) / mkt)    # normalize
+            if ds < 0:
+                ds = 0
+            c[7] = ds
+            nc[:, 7] = ds
+
             b[j, :] = c
             nb[j, :, :] = nc
         mtsp[i, :, :] = b
         nmtsp[i, :, :, :] = nb
-
-    # calc mean and std dev similarity
-    m0 = 5 * (1 - np.nanmean(nmtsp[:, :, :, 0], axis=2))
-    m1 = 5 * (1 - np.nanmean(nmtsp[:, :, :, 1], axis=2))
-    m0[m0 < 0] = 0
-    m1[m1 < 0] = 0
-    mtsp[:, :, 0] = m0
-    mtsp[:, :, 1] = m1
-    m0 = 5 * (1 - nmtsp[:, :, :, 0])
-    m1 = 5 * (1 - nmtsp[:, :, :, 1])
-    m0[m0 < 0] = 0
-    m1[m1 < 0] = 0
-    nmtsp[:, :, :, 0] = m0
-    nmtsp[:, :, :, 1] = m1
 
     # calc MTESS & Node MTESS
     mtsp[mtsp < 0] = 0
@@ -191,7 +198,7 @@ def calc(cx, mtrange=np.nan, n_dft=100, cc_lags=4, pcc_lags=2, cxnames=[], cache
     mts = np.nanmean(mtsp, axis=2)
     nmts = np.nanmean(nmtsp, axis=3)
 
-    return mts, mtsp, nmts, nmtsp, means, stds, acs, cms, pcms, ccms, pccms
+    return mts, mtsp, nmts, nmtsp, means, stds, acs, pacs, cms, pcms, ccms, pccms, mkts
 
 
 def plot(mts, outname):
@@ -231,16 +238,17 @@ def plot_bar3d(mts, outname):
 
 def plot_all_mat(mts, mtsp, outname):
     sz = mts.shape[0]
-    s = np.empty((sz, sz, 4))
+    s = np.empty((sz, sz, 5))
     mts[np.isnan(mts)] = 0
     mtsp[np.isnan(mtsp)] = 0
-    s[:, :, 0] = np.transpose(mtsp[:, :, 2]) + mts
-    s[:, :, 1] = np.transpose(mtsp[:, :, 1]) + mtsp[:, :, 0]
+    s[:, :, 0] = np.transpose(mtsp[:, :, 0]) + mts
+    s[:, :, 1] = np.transpose(mtsp[:, :, 2]) + mtsp[:, :, 1]
     s[:, :, 2] = np.transpose(mtsp[:, :, 4]) + mtsp[:, :, 3]
     s[:, :, 3] = np.transpose(mtsp[:, :, 6]) + mtsp[:, :, 5]
+    s[:, :, 4] = mtsp[:, :, 7]
 
-    prop2 = ['MTESS/AC', 'Mean/SD', 'CM/PCM', 'CCM/PCCM']
-    for i in range(4):
+    prop2 = ['MTESS/SD', 'AC/PAC', 'CM/PCM', 'CCM/PCCM', 'mKT/-']
+    for i in range(5):
         # show MTESS prop matrix
         plt.matshow(s[:, :, i], vmin=0, vmax=5)
         plt.title(prop2[i]+' - '+outname)
@@ -265,10 +273,10 @@ def plot_node(nm, outname, dnames=[]):
     plt.pause(1)
 
 
-# pm      MTESS statistical properties matrix (cell number x 7)
+# pm      MTESS statistical properties matrix (cell number x 8)
 def plot_radar(pm, outname, dnames=[]):
     rgrids = np.arange(6)
-    labels = ['Mean', 'SD', 'AC', 'CM', 'PCM', 'CCM', 'PCCM']
+    labels = ['SD', 'AC', 'PAC', 'CM', 'PCM', 'CCM', 'PCCM', 'mKT']
     angles = np.linspace(0, 2 * np.pi, len(labels) + 1, endpoint=True)
 
     fig = plt.figure(facecolor="w")

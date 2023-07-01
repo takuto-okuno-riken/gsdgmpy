@@ -9,7 +9,7 @@ class ParseOptions:
     def initialize(self):
         self.parser.add_argument('in_files', metavar='filename', nargs='+', help='filename of node status time-series (node x frames)')
         self.parser.add_argument('--range', type=str, nargs=1, default='auto', help='input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)')
-        self.parser.add_argument('--ndft', nargs=1, default=100, help='DFT sampling <number> (even number) (default: 100)')
+        self.parser.add_argument('--aclag', type=int, default=15, help='time lag <num> for Auto Correlation (default:15)')
         self.parser.add_argument('--cclag', type=int, default=8, help='time lag <num> for Cross Correlation (default:8)')
         self.parser.add_argument('--pcclag', type=int, default=8, help='time lag <num> for Partial Cross Correlation (default:8)')
         self.parser.add_argument('--outpath', nargs=1, default='results', help='output files path (default:"results")')

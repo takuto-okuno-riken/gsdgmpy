@@ -15,7 +15,7 @@ This allows us to achieve the most biologically plausible standardized human bra
 <img src="data/fig1a.jpg" width="70%">
 </div>
 
-MTESS can quantify the similarity between two multivariate time-series. It is composed of the normalized distance or cos-similarity of seven basic statistical properties. These are the mean, standard deviation, auto-correlation, correlation matrix, partial correlation matrix, cross-correlation matrix, and partial cross-correlation matrix. By considering each of these statistical properties, it is possible to identify which of them differ between two multivariate time-series using a “MTESS radar chart.”  The total difference between two multivariate time-series is expressed by a single value [0, 5] (0: not similar to 5: similar)(MTESS), and the  difference in each univariate time-series, which we consider as nodes of a network, is expressed as a Node MTESS value.
+MTESS can quantify the similarity between two multivariate time-series. It is composed of the normalized distance or cos-similarity of seven basic statistical properties. These are the standard deviation, auto-correlation, partial auto-correlation, correlation matrix, partial correlation matrix, cross-correlation matrix and partial cross-correlation matrix, and multivariate kurtosis. By considering each of these statistical properties, it is possible to identify which of them differ between two multivariate time-series using a “MTESS radar chart.”  The total difference between two multivariate time-series is expressed by a single value [0, 5] (0: not similar to 5: similar)(MTESS), and the  difference in each univariate time-series, which we consider as nodes of a network, is expressed as a Node MTESS value.
 
 The combination of GSDGM and MTESS allows us to perform fingerprint analysis of a group of multivariate time-series.
 The GSDGM can generate the group centroid time-series and MTESS can quantify normality and abnormality based on a comparison between the group centroid and each individual multivariate time-series.
@@ -210,7 +210,7 @@ output mat file : results\demo-original-8x500_iid_test.mat
 <b>mtess command</b><br>
 ~~~
 (gsdgm) gsdgmpy-main>python mtess.py -h
-usage: mtess.py [-h] [--range RANGE] [--ndft NDFT] [--cclag CCLAG] [--pcclag PCCLAG] [--outpath OUTPATH]
+usage: mtess.py [-h] [--range RANGE] [--aclag ACLAG] [--cclag CCLAG] [--pcclag PCCLAG] [--outpath OUTPATH]
                 [--format FORMAT] [--transform TRANSFORM] [--transopt TRANSOPT] [--showinsig] [--showinras]
                 [--showmat] [--showsig] [--showprop] [--shownode] [--showdend SHOWDEND] [--cache]
                 [--cachepath CACHEPATH]
@@ -222,7 +222,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --range RANGE         input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)
-  --ndft NDFT           DFT sampling <number> (even number) (default: 100)
+  --aclag ACLAG         time lag <num> for Auto Correlation (default:15)
   --cclag CCLAG         time lag <num> for Cross Correlation (default:8)
   --pcclag PCCLAG       time lag <num> for Partial Cross Correlation (default:8)
   --outpath OUTPATH     output files path (default:"results")

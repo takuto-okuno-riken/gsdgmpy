@@ -36,6 +36,7 @@ The GSDGM can generate the group centroid time-series and MTESS can quantify nor
 * scikit_learn 1.1.*
 * h5py 3.8.*
 * pandas 1.4.*
+* statsmodels 0.14.*
 
 
 ## Installation

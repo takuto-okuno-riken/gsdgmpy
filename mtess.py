@@ -174,7 +174,7 @@ if __name__ == '__main__':
     if opt.cache:
         cnames = CXnames
     mts, mtsp, nmts, nmtsp, means, stds, acs, pacs, cms, pcms, ccms, pccms, mkts = \
-        measures.mtess.calc(cx=CX, mtrange=mtrange, ac_lags=opt.aclag, cc_lags=opt.cclag, pcc_lags=opt.pcclag,
+        measures.mtess.calc(cx=CX, mtrange=mtrange, ac_lags=opt.aclag, pac_lags=opt.paclag, cc_lags=opt.cclag, pcc_lags=opt.pcclag,
                             cxnames=cnames, cache_path=opt.cachepath)
 
     # output result matrix files

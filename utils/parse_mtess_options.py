@@ -9,9 +9,10 @@ class ParseOptions:
     def initialize(self):
         self.parser.add_argument('in_files', metavar='filename', nargs='+', help='filename of node status time-series (node x frames)')
         self.parser.add_argument('--range', type=str, nargs=1, default='auto', help='input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)')
-        self.parser.add_argument('--aclag', type=int, default=15, help='time lag <num> for Auto Correlation (default:15)')
-        self.parser.add_argument('--cclag', type=int, default=8, help='time lag <num> for Cross Correlation (default:8)')
-        self.parser.add_argument('--pcclag', type=int, default=8, help='time lag <num> for Partial Cross Correlation (default:8)')
+        self.parser.add_argument('--aclag', type=int, default=5, help='time lag <num> for Auto Correlation (default:5)')
+        self.parser.add_argument('--paclag', type=int, default=13, help='time lag <num> for Partial Auto Correlation (default:13)')
+        self.parser.add_argument('--cclag', type=int, default=2, help='time lag <num> for Cross Correlation (default:2)')
+        self.parser.add_argument('--pcclag', type=int, default=4, help='time lag <num> for Partial Cross Correlation (default:4)')
         self.parser.add_argument('--outpath', nargs=1, default='results', help='output files path (default:"results")')
         self.parser.add_argument('--format', type=int, default=1, help='save file format <type> 0:csv, 1:mat (default:1)')
         self.parser.add_argument('--transform', type=int, default=0, help='input signal transform  0:raw, 1:sigmoid (default:0)')

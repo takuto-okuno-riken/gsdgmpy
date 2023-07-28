@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import measures
 
 
-def calc(cx, mtrange=np.nan, ac_lags=15, cc_lags=4, pcc_lags=2, cxnames=[], cache_path='results'+os.sep+'cache'):
+def calc(cx, mtrange=np.nan, ac_lags=5, pac_lags=13, cc_lags=2, pcc_lags=4, cxnames=[], cache_path='results'+os.sep+'cache'):
     clen = len(cx)
     node_num = cx[0].shape[0]
     # check data file. node num should be same.
@@ -54,7 +54,7 @@ def calc(cx, mtrange=np.nan, ac_lags=15, cc_lags=4, pcc_lags=2, cxnames=[], cach
     means = np.zeros((clen, node_num))
     stds = np.zeros((clen, node_num))
     acs = np.zeros((clen, node_num, ac_lags+1))
-    pacs = np.zeros((clen, node_num, ac_lags+1))
+    pacs = np.zeros((clen, node_num, pac_lags+1))
     cms = np.zeros((clen, node_num, node_num))
     pcms = np.zeros((clen, node_num, node_num))
     ccms = np.zeros((clen, node_num, node_num, 2*cc_lags+1))
@@ -80,7 +80,7 @@ def calc(cx, mtrange=np.nan, ac_lags=15, cc_lags=4, pcc_lags=2, cxnames=[], cach
             xm = np.mean(x, axis=1)
             xsd = np.std(x, axis=1)
             xac = measures.ac.calc(x=x, max_lag=ac_lags)
-            xpac = measures.pac.calc(x=x, max_lag=ac_lags)
+            xpac = measures.pac.calc(x=x, max_lag=pac_lags)
             xcc = measures.ccm.calc(x=x, max_lag=cc_lags)
             xpcc = measures.pccm.calc(x=x, max_lag=pcc_lags)
             xmsw, xmkt = measures.mskewkurt.calc(x=x)
@@ -133,8 +133,8 @@ def calc(cx, mtrange=np.nan, ac_lags=15, cc_lags=4, pcc_lags=2, cxnames=[], cach
             c[1] = 5 * measures.cos_sim(a1, a2)
             for k in range(node_num):
                 nc[k, 1] = 5 * measures.cos_sim(a1[k, :], a2[k, :])
-            a1 = pacs[i, :, 1:ac_lags]
-            a2 = pacs[j, :, 1:ac_lags]
+            a1 = pacs[i, :, 1:pac_lags]
+            a2 = pacs[j, :, 1:pac_lags]
             c[2] = 5 * measures.cos_sim(a1, a2)
             for k in range(node_num):
                 nc[k, 2] = 5 * measures.cos_sim(a1[k, :], a2[k, :])

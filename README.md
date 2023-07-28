@@ -211,9 +211,9 @@ output mat file : results\demo-original-8x500_iid_test.mat
 <b>mtess command</b><br>
 ~~~
 (gsdgm) gsdgmpy-main>python mtess.py -h
-usage: mtess.py [-h] [--range RANGE] [--aclag ACLAG] [--cclag CCLAG] [--pcclag PCCLAG] [--outpath OUTPATH]
-                [--format FORMAT] [--transform TRANSFORM] [--transopt TRANSOPT] [--showinsig] [--showinras]
-                [--showmat] [--showsig] [--showprop] [--shownode] [--showdend SHOWDEND] [--cache]
+usage: mtess.py [-h] [--range RANGE] [--aclag ACLAG] [--paclag PACLAG] [--cclag CCLAG] [--pcclag PCCLAG]
+                [--outpath OUTPATH] [--format FORMAT] [--transform TRANSFORM] [--transopt TRANSOPT] [--showinsig]
+                [--showinras] [--showmat] [--showsig] [--showprop] [--shownode] [--showdend SHOWDEND] [--cache]
                 [--cachepath CACHEPATH]
                 filename [filename ...]
 
@@ -223,9 +223,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --range RANGE         input group value range (default:"auto", sigma:<num>, full:<num> or <min>:<max>)
-  --aclag ACLAG         time lag <num> for Auto Correlation (default:15)
-  --cclag CCLAG         time lag <num> for Cross Correlation (default:8)
-  --pcclag PCCLAG       time lag <num> for Partial Cross Correlation (default:8)
+  --aclag ACLAG         time lag <num> for Auto Correlation (default:5)
+  --paclag PACLAG       time lag <num> for Partial Auto Correlation (default:13)
+  --cclag CCLAG         time lag <num> for Cross Correlation (default:2)
+  --pcclag PCCLAG       time lag <num> for Partial Cross Correlation (default:4)
   --outpath OUTPATH     output files path (default:"results")
   --format FORMAT       save file format <type> 0:csv, 1:mat (default:1)
   --transform TRANSFORM

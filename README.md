@@ -110,14 +110,14 @@ As can be seen in this result, VAR, FT and AAFT surrogate data (cell number 3-5)
 The third demo shows the calculation of (VAR) group surrogate data based on [the Human Connectome Project](https://www.humanconnectome.org/) S500 male rs-fMRI data (132 ROIs). Then MTESS is calculated amongst some samples of rs-fMRI time-series data and group surrogate data.<br>
 (Caution: Downloading and MTESS calculation will take some time.)
 ~~~
-(gsdgm) gsdgmpy-main>python gsdgm.py --surrnum 2 --showsig http://fmridata2.s323.xrea.com/hcp-s500m-var1.mat
-downloading http://fmridata2.s323.xrea.com/hcp-s500m-var1.mat
-save cache file : data/cache/fmridata2_s323_xrea_com-hcp-s500m-var1.mat
+(gsdgm) gsdgmpy-main>python gsdgm.py --surrnum 2 --showsig http://fmridata.s322.xrea.com/hcp-s500m-var1.mat
+downloading http://fmridata.s322.xrea.com/hcp-s500m-var1.mat
+save cache file : data/cache/fmridata_s322_xrea_com-hcp-s500m-var1.mat
 var surrogate sample : 1
 var surrogate sample : 2
-output mat file : results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
+output mat file : results\fmridata_s322_xrea_com-hcp-s500m-var1_gsd_var_all.mat
 
-(gsdgm) gsdgmpy-main>python mtess.py --showmat --showdend ward --showprop --cache data/demo-fmri-132x1190s.mat results\fmridata2_s323_xrea_com-hcp-s500m-var1_gsd_var_all.mat
+(gsdgm) gsdgmpy-main>python mtess.py --showmat --showdend ward --showprop --cache data/demo-fmri-132x1190s.mat results\fmridata_s322_xrea_com-hcp-s500m-var1_gsd_var_all.mat
 ...
 output mat file : results\demo-fmri-132x1190s_mtess.mat
 ~~~
